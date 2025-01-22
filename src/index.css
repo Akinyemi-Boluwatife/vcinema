@@ -93,15 +93,15 @@ img {
 
   border-radius: 0.8rem;
 }
-.close-btn {
+/* .close-btn {
   height: 20px;
-}
+} */
 .close-btn button {
   position: absolute;
   top: 1px;
   right: 2px;
-  font-size: 22px;
-  height: 30px;
+  font-size: 20px;
+  height: 27px;
   aspect-ratio: 1/1;
   border-radius: 50%;
   cursor: pointer;
@@ -126,7 +126,24 @@ img {
 
   /* border: 2px solid black; */
 }
-
+.stat {
+  background-color: #4193b4;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+}
+.stat h2 {
+  text-transform: uppercase;
+}
+.stat-pa {
+  word-spacing: 7px;
+}
+.emj-spc {
+  padding-left: 0.8rem;
+}
 /* /// */
 @media screen and (min-width: 668px) {
   .nav-bar {
