@@ -96,7 +96,7 @@ function App() {
 
 function NavBar() {
   return (
-    <nav className="nav-bar cont">
+    <nav className="nav-bar">
       <p className="logo">
         <span>🎦</span> Vcinema
       </p>
@@ -111,7 +111,7 @@ function NavBar() {
 }
 
 function Main({ children }) {
-  return <main className="main-des"> {children}</main>;
+  return <main className="main-des container">{children}</main>;
 }
 
 function Box({ children }) {
@@ -120,7 +120,9 @@ function Box({ children }) {
   return (
     <div className="bx-des">
       <div className="close-btn">
-        <button onClick={() => setIsOpen((cur) => !cur)}>-</button>
+        <button onClick={() => setIsOpen((cur) => !cur)}>
+          {isOpen ? "-" : "+"}
+        </button>
       </div>
 
       {isOpen && children}
