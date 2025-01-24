@@ -51,7 +51,7 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "10d88e2";
-const tempquery = "Mr robot";
+const tempquery = "mr robot";
 
 function App() {
   const [movie, setMovie] = useState([]);
@@ -63,6 +63,7 @@ function App() {
 
   function handleSelectedId(id) {
     setSelectedId((selectedId) => id);
+    console.log(selectedId);
   }
 
   useEffect(
@@ -73,7 +74,7 @@ function App() {
           setIsError("");
 
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${tempquery}`
           );
           if (!res.ok)
             throw new Error("Something went wrong when fetching the movies");
@@ -81,10 +82,9 @@ function App() {
           const data = await res.json();
 
           if (data.Response === "False") throw new Error("Movie not found");
-
           // console.log(data.Search);
           setMovie(data.Search);
-          console.log(data);
+          // console.log(data);
           setIsError("");
         } catch (err) {
           console.error(err.message);
@@ -121,8 +121,14 @@ function App() {
           )}
         </Box>
         <Box>
-          <Statistics />
-          <WatchedMovies movie={tempWatchedData} />
+          {selectedId ? (
+            <SelectedMovie />
+          ) : (
+            <>
+              <Statistics />
+              <WatchedMovies movie={tempWatchedData} />
+            </>
+          )}
         </Box>
       </Main>
     </>
@@ -137,10 +143,10 @@ function Loader() {
   );
 }
 
-function MessageError({ error }) {
+function MessageError() {
   return (
     <div className="api-mess">
-      <h3>Movie not Found...</h3>
+      <h3>No movie found...</h3>
     </div>
   );
 }
@@ -214,7 +220,7 @@ function Movie({ movie, onAddSelectedId }) {
 
 function MovieList({ movie, onAddSelectedId }) {
   return (
-    <li className="list-des" onClick={() => onAddSelectedId(movie.Title)}>
+    <li className="list-des" onClick={() => onAddSelectedId(movie.imdbID)}>
       <div className="li-img">
         <img src={movie.Poster} alt="poster" />
       </div>
@@ -251,6 +257,33 @@ function WatchedMovies({ movie }) {
         <MovieList movie={movie} key={movie.imdbID} />
       ))}
     </ul>
+  );
+}
+const tempId = "tt1375666";
+
+function SelectedMovie({ selectedId }) {
+  useEffect(function () {
+    async function selectedMovieDetails() {
+      try {
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&i=${tempId}`
+        );
+        if (!res.ok) throw new Error("Problem encountered when searching");
+        const data = res.json();
+        console.log(data);
+      } catch (err) {
+        console.log(err.message);
+      } finally {
+        console.log("done");
+      }
+    }
+    selectedMovieDetails();
+  }, []);
+
+  return (
+    <div className="mv-dt">
+      <p>{selectedId}</p>
+    </div>
   );
 }
 export default App;
