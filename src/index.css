@@ -144,6 +144,16 @@ img {
 .emj-spc {
   padding-left: 0.8rem;
 }
+.api-mess {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+.api-mess h3 {
+  color: var(--color-background-900);
+}
 /* /// */
 @media screen and (min-width: 668px) {
   .nav-bar {

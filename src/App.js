@@ -58,7 +58,7 @@ function App() {
   const [WatchedMovie, setWatchedmovie] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [query, setQuery] = useState("");
-  const [error, setError] = useState("");
+  const [isError, setIsError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   function handleSelectedId(id) {
@@ -70,38 +70,38 @@ function App() {
       async function getMovie() {
         try {
           setIsLoading(true);
+          setIsError("");
 
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${tempquery}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
           );
           if (!res.ok)
-            throw new Error("Something went wrong when fetching the data");
+            throw new Error("Something went wrong when fetching the movies");
 
           const data = await res.json();
 
           if (data.Response === "False") throw new Error("Movie not found");
 
-          console.log(data.Search);
-          console.log(data);
+          // console.log(data.Search);
           setMovie(data.Search);
+          console.log(data);
+          setIsError("");
         } catch (err) {
-          console.log(err.message);
-          setError(err.message);
+          console.error(err.message);
+          setIsError(err.message);
         } finally {
           setIsLoading(false);
           // console.log("done");
         }
 
         if (query.length < 3) {
-          setError("");
+          setMovie([]);
+          setIsError("");
           return;
         }
       }
 
       getMovie();
-      // finally(){
-
-      // }
     },
     [query]
   );
@@ -114,7 +114,11 @@ function App() {
       </NavBar>
       <Main>
         <Box>
-          <Movie movie={movie} onAddSelectedId={handleSelectedId} />
+          {isLoading && <Loader />}
+          {isError && <MessageError error={isError} />}
+          {!isLoading && !isError && (
+            <Movie movie={movie} onAddSelectedId={handleSelectedId} />
+          )}
         </Box>
         <Box>
           <Statistics />
@@ -122,6 +126,22 @@ function App() {
         </Box>
       </Main>
     </>
+  );
+}
+
+function Loader() {
+  return (
+    <div className="api-mess">
+      <h3>Loading...</h3>
+    </div>
+  );
+}
+
+function MessageError({ error }) {
+  return (
+    <div className="api-mess">
+      <h3>Movie not Found...</h3>
+    </div>
   );
 }
 
