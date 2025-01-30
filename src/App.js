@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import StarRating from "./StarRating";
 
 const tempMovieData = [
   {
@@ -63,7 +64,13 @@ function App() {
 
   function handleSelectedId(id) {
     setSelectedId((selectedId) => id);
-    console.log(selectedId);
+  }
+  function handleAddWatchedMovie(newMovie) {
+    setWatchedmovie((movie) => [...movie, newMovie]);
+    console.log(WatchedMovie);
+  }
+  function handleCloseMovie() {
+    setSelectedId(null);
   }
 
   useEffect(
@@ -122,7 +129,12 @@ function App() {
         </Box>
         <Box>
           {selectedId ? (
-            <SelectedMovie selectedId={selectedId} key={selectedId} />
+            <SelectedMovie
+              selectedId={selectedId}
+              key={selectedId}
+              onAddWatchedMovie={handleAddWatchedMovie}
+              onCloseMovie={handleCloseMovie}
+            />
           ) : (
             <>
               <Statistics />
@@ -278,9 +290,10 @@ function MovieListWatched({ movie }) {
 
 const tempId = "tt1375666";
 
-function SelectedMovie({ selectedId }) {
+function SelectedMovie({ selectedId, onAddWatchedMovie, onCloseMovie }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState(0);
 
   const {
     Title: title,
@@ -296,6 +309,18 @@ function SelectedMovie({ selectedId }) {
     imdbRating,
   } = movie;
 
+  function addToWatchedList() {
+    const newWatched = {
+      title,
+      poster,
+      imdbID: selectedId,
+      year,
+      userRating,
+      runtime,
+    };
+    onAddWatchedMovie(newWatched);
+  }
+
   useEffect(
     function () {
       async function selectedMovieDetails() {
@@ -306,12 +331,12 @@ function SelectedMovie({ selectedId }) {
           );
           if (!res.ok) throw new Error("Problem encountered when searching");
           const data = await res.json();
-          console.log(data);
+          // console.log(data);
           setMovie(data);
         } catch (err) {
           console.log(err.message);
         } finally {
-          console.log("done");
+          // console.log("done");
           setIsLoading(false);
         }
       }
@@ -324,6 +349,9 @@ function SelectedMovie({ selectedId }) {
     <Loader />
   ) : (
     <div className="mv-dt">
+      <div className="bck-btn">
+        <button onClick={onCloseMovie}>&larr;</button>
+      </div>
       <div className="ps-tg">
         <div className="ps-im">
           <img src={poster} alt="the graphics" />
@@ -340,6 +368,18 @@ function SelectedMovie({ selectedId }) {
             <span>🎬</span> {genre}
           </p>
         </div>
+      </div>
+
+      <div className="star-rate">
+        <StarRating
+          maxRating={10}
+          size={24}
+          onSetRating={setUserRating}
+          color="#FFFFC7"
+        />
+        {userRating > 0 && (
+          <button onClick={addToWatchedList}>Add to watched</button>
+        )}
       </div>
 
       <div className="more-dts">
