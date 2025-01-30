@@ -63,11 +63,11 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
 
   function handleSelectedId(id) {
-    setSelectedId((selectedId) => id);
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
   function handleAddWatchedMovie(newMovie) {
     setWatchedmovie((movie) => [...movie, newMovie]);
-    console.log(WatchedMovie);
+    // console.log(WatchedMovie);
   }
   function handleCloseMovie() {
     setSelectedId(null);
@@ -117,7 +117,7 @@ function App() {
     <>
       <NavBar>
         <Search query={query} setQuery={setQuery} />
-        <NumResult />
+        <NumResult movie={movie} />
       </NavBar>
       <Main>
         <Box>
@@ -137,8 +137,8 @@ function App() {
             />
           ) : (
             <>
-              <Statistics />
-              <WatchedMovies movie={tempWatchedData} />
+              <Statistics movie={WatchedMovie} />
+              <WatchedMovies movie={WatchedMovie} />
             </>
           )}
         </Box>
@@ -188,10 +188,10 @@ function Search({ query, setQuery }) {
   );
 }
 
-function NumResult() {
+function NumResult({ movie }) {
   return (
     <p>
-      Discovered <span className="bold">10</span> results
+      Discovered <span className="bold">{movie.length}</span> results
     </p>
   );
 }
@@ -247,16 +247,27 @@ function MovieList({ movie, onAddSelectedId }) {
   );
 }
 
-function Statistics() {
+function Statistics({ movie }) {
+  const avgWatchTime = average(movie.map((movie) => movie.runtime));
+  const avgRating = average(movie.map((movie) => movie.imdbRating));
+
+  // console.log(avgWatchTime);
+
   return (
     <div className="stat">
       <h2>Movies you watched</h2>
       <div>
-        <p className="stat-pa">
-          <span className="emj-spc">🔢</span>0 Movies
-          <span className="emj-spc">⭐</span>0.0
-          <span className="emj-spc">⌛</span>0 Min
-        </p>
+        <div className="stat-pa">
+          <p>
+            <span className="emj-spc">🔢</span> {movie.length}Movies
+          </p>
+          <p>
+            <span className="emj-spc">⭐</span> {avgRating.toFixed(0)}
+          </p>
+          <p>
+            <span className="emj-spc">⌛</span> {avgWatchTime}Mins
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -275,14 +286,25 @@ function MovieListWatched({ movie }) {
   return (
     <li className="list-des">
       <div className="li-img">
-        <img src={movie.Poster} alt="poster" />
+        <img src={movie.poster} alt="poster" />
       </div>
 
       <div className="ttl-yyr">
         <p>
-          <span className="bold">{movie.Title}</span>
+          <span className="bold">{movie.title}</span>
         </p>
-        <p>{movie.Year}</p>
+
+        <div className="ttl-details">
+          <p>
+            <span>⭐</span> {movie.imdbRating}
+          </p>
+          <p>
+            <span className="emj-spc">🌟</span> {movie.userRating}
+          </p>
+          <p>
+            <span className="emj-spc">⌛</span> {movie.runtime}mins
+          </p>
+        </div>
       </div>
     </li>
   );
@@ -315,11 +337,23 @@ function SelectedMovie({ selectedId, onAddWatchedMovie, onCloseMovie }) {
       poster,
       imdbID: selectedId,
       year,
+      imdbRating: Number(imdbRating),
       userRating,
-      runtime,
+      runtime: Number(runtime.split(" ").at(0)),
     };
     onAddWatchedMovie(newWatched);
+    onCloseMovie();
   }
+
+  useEffect(function () {
+    if (!title) return;
+
+    document.title = `Movie || ${title}`;
+
+    return function () {
+      document.title = "Vcinema";
+    };
+  });
 
   useEffect(
     function () {

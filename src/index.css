@@ -139,7 +139,12 @@ img {
   text-transform: uppercase;
 }
 .stat-pa {
-  word-spacing: 7px;
+  display: flex;
+}
+.ttl-details {
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
 }
 .emj-spc {
   padding-left: 0.8rem;
