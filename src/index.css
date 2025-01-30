@@ -88,7 +88,7 @@ img {
 .bx-des {
   position: relative;
   background-color: #265669;
-  height: 28rem;
+  height: 32rem;
   overflow: auto;
 
   border-radius: 0.8rem;
@@ -185,6 +185,40 @@ img {
   flex-direction: column;
   gap: 0.5rem;
 }
+.star-rate {
+  margin: 0.5rem auto;
+  padding: 1rem 0;
+  width: 95%;
+  background-color: #689da1;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  gap: 1rem;
+}
+.star-rate button {
+  width: 80%;
+  border: none;
+  background-color: var(--color-background-1);
+  color: var(--color-text);
+  font-weight: 800;
+  padding: 0.6rem;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.star-rate button:hover {
+  background-color: var(--color-background-3);
+}
+.bck-btn button {
+  height: 25px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  border: none;
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+}
 /* /// */
 @media screen and (min-width: 668px) {
   .nav-bar {
@@ -207,9 +241,9 @@ img {
   }
   .ps-tg {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 2fr;
     margin-bottom: 1rem;
-    gap: 0.1rem;
+    gap: 0.5rem;
 
     /* border: 2px solid green; */
   }
