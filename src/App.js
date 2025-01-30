@@ -51,7 +51,7 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "10d88e2";
-const tempquery = "mr robot";
+const tempquery = "money heist";
 
 function App() {
   const [movie, setMovie] = useState([]);
@@ -94,11 +94,11 @@ function App() {
           // console.log("done");
         }
 
-        if (query.length < 3) {
-          setMovie([]);
-          setIsError("");
-          return;
-        }
+        // if (query.length < 3) {
+        //   setMovie([]);
+        //   setIsError("");
+        //   return;
+        // }
       }
 
       getMovie();
@@ -122,7 +122,7 @@ function App() {
         </Box>
         <Box>
           {selectedId ? (
-            <SelectedMovie />
+            <SelectedMovie selectedId={selectedId} key={selectedId} />
           ) : (
             <>
               <Statistics />
@@ -254,35 +254,101 @@ function WatchedMovies({ movie }) {
   return (
     <ul>
       {movie.map((movie) => (
-        <MovieList movie={movie} key={movie.imdbID} />
+        <MovieListWatched movie={movie} key={movie.imdbID} />
       ))}
     </ul>
   );
 }
+function MovieListWatched({ movie }) {
+  return (
+    <li className="list-des">
+      <div className="li-img">
+        <img src={movie.Poster} alt="poster" />
+      </div>
+
+      <div className="ttl-yyr">
+        <p>
+          <span className="bold">{movie.Title}</span>
+        </p>
+        <p>{movie.Year}</p>
+      </div>
+    </li>
+  );
+}
+
 const tempId = "tt1375666";
 
 function SelectedMovie({ selectedId }) {
-  useEffect(function () {
-    async function selectedMovieDetails() {
-      try {
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&i=${tempId}`
-        );
-        if (!res.ok) throw new Error("Problem encountered when searching");
-        const data = res.json();
-        console.log(data);
-      } catch (err) {
-        console.log(err.message);
-      } finally {
-        console.log("done");
-      }
-    }
-    selectedMovieDetails();
-  }, []);
+  const [movie, setMovie] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  return (
+  const {
+    Title: title,
+    Year: year,
+    Rated: rated,
+    Released: released,
+    Poster: poster,
+    Plot: plot,
+    Runtime: runtime,
+    Actors: actors,
+    Director: director,
+    Genre: genre,
+    imdbRating,
+  } = movie;
+
+  useEffect(
+    function () {
+      async function selectedMovieDetails() {
+        try {
+          setIsLoading(true);
+          const res = await fetch(
+            `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+          );
+          if (!res.ok) throw new Error("Problem encountered when searching");
+          const data = await res.json();
+          console.log(data);
+          setMovie(data);
+        } catch (err) {
+          console.log(err.message);
+        } finally {
+          console.log("done");
+          setIsLoading(false);
+        }
+      }
+      selectedMovieDetails();
+    },
+    [selectedId]
+  );
+
+  return isLoading ? (
+    <Loader />
+  ) : (
     <div className="mv-dt">
-      <p>{selectedId}</p>
+      <div className="ps-tg">
+        <div className="ps-im">
+          <img src={poster} alt="the graphics" />
+        </div>
+        <div className="title-time-wrp">
+          <h2>{title}</h2>
+          <p>
+            <span>⏲</span> {runtime}
+          </p>
+          <p>
+            <span>✈</span> {year}
+          </p>
+          <p>
+            <span>🎬</span> {genre}
+          </p>
+        </div>
+      </div>
+
+      <div className="more-dts">
+        <p>
+          <em>{plot}</em>
+        </p>
+        <p>Staring: {actors}</p>
+        <p>Directed by: {director}</p>
+      </div>
     </div>
   );
 }
