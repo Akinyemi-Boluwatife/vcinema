@@ -81,7 +81,7 @@ function App() {
           setIsError("");
 
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${tempquery}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
           );
           if (!res.ok)
             throw new Error("Something went wrong when fetching the movies");
@@ -101,14 +101,15 @@ function App() {
           // console.log("done");
         }
 
-        // if (query.length < 3) {
-        //   setMovie([]);
-        //   setIsError("");
-        //   return;
-        // }
+        if (query.length < 3) {
+          setMovie([]);
+          setIsError("");
+          return;
+        }
       }
 
       getMovie();
+      handleCloseMovie();
     },
     [query]
   );
@@ -134,6 +135,7 @@ function App() {
               key={selectedId}
               onAddWatchedMovie={handleAddWatchedMovie}
               onCloseMovie={handleCloseMovie}
+              WatchedMovie={WatchedMovie}
             />
           ) : (
             <>
@@ -241,7 +243,9 @@ function MovieList({ movie, onAddSelectedId }) {
         <p>
           <span className="bold">{movie.Title}</span>
         </p>
-        <p>{movie.Year}</p>
+        <p>
+          <span>📅</span> {movie.Year}
+        </p>
       </div>
     </li>
   );
@@ -265,7 +269,7 @@ function Statistics({ movie }) {
             <span className="emj-spc">⭐</span> {avgRating.toFixed(0)}
           </p>
           <p>
-            <span className="emj-spc">⌛</span> {avgWatchTime}Mins
+            <span className="emj-spc">⌛</span> {avgWatchTime.toFixed(1)}Mins
           </p>
         </div>
       </div>
@@ -310,13 +314,26 @@ function MovieListWatched({ movie }) {
   );
 }
 
-const tempId = "tt1375666";
+// const tempId = "tt1375666";
 
-function SelectedMovie({ selectedId, onAddWatchedMovie, onCloseMovie }) {
+function SelectedMovie({
+  selectedId,
+  onAddWatchedMovie,
+  onCloseMovie,
+  WatchedMovie,
+}) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
+  const isListed = WatchedMovie.map((movie) => movie.imdbID).includes(
+    selectedId
+  );
+  const alreadyUserRated = WatchedMovie?.find(
+    (movie) => movie?.imdbID === selectedId
+  )?.userRating;
+
+  console.log(isListed);
   const {
     Title: title,
     Year: year,
@@ -396,6 +413,10 @@ function SelectedMovie({ selectedId, onAddWatchedMovie, onCloseMovie }) {
             <span>⏲</span> {runtime}
           </p>
           <p>
+            <span>⭐</span>
+            {imdbRating} imdb rating
+          </p>
+          <p>
             <span>✈</span> {year}
           </p>
           <p>
@@ -405,14 +426,23 @@ function SelectedMovie({ selectedId, onAddWatchedMovie, onCloseMovie }) {
       </div>
 
       <div className="star-rate">
-        <StarRating
-          maxRating={10}
-          size={24}
-          onSetRating={setUserRating}
-          color="#FFFFC7"
-        />
-        {userRating > 0 && (
-          <button onClick={addToWatchedList}>Add to watched</button>
+        {isListed ? (
+          <p>
+            <em>You have rated it {alreadyUserRated}/10 </em>
+            <span>🌟</span>
+          </p>
+        ) : (
+          <>
+            <StarRating
+              maxRating={10}
+              size={24}
+              onSetRating={setUserRating}
+              color="#FFFFC7"
+            />
+            {userRating > 0 && (
+              <button onClick={addToWatchedList}>Add to watched</button>
+            )}
+          </>
         )}
       </div>
 
