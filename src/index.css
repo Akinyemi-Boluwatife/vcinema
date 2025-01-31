@@ -189,6 +189,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-bottom: 1rem;
 }
 .star-rate {
   margin: 0.5rem auto;
