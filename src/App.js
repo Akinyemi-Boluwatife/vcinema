@@ -4,7 +4,7 @@ import StarRating from "./StarRating";
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = "10d88e2";
+const apiKey = process.env.REACT_APP_API_KEY;
 
 function App() {
   const [movie, setMovie] = useState([]);
@@ -35,7 +35,7 @@ function App() {
           setIsError("");
 
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            `http://www.omdbapi.com/?apikey=${apiKey}&s=${query}`,
             { signal: controller.signal }
           );
           if (!res.ok)
@@ -50,7 +50,7 @@ function App() {
           setIsError("");
         } catch (err) {
           if (err.name !== "AbortError") {
-            console.error(err.message);
+            // console.error(err.message);
             setIsError(err.message);
           }
         } finally {
@@ -294,7 +294,7 @@ function SelectedMovie({
     (movie) => movie?.imdbID === selectedId
   )?.userRating;
 
-  console.log(isListed);
+  // console.log(isListed);
   const {
     Title: title,
     Year: year,
@@ -337,7 +337,7 @@ function SelectedMovie({
         try {
           setIsLoading(true);
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+            `https://www.omdbapi.com/?apikey=${apiKey}&i=${selectedId}`
           );
           if (!res.ok) throw new Error("Problem encountered when searching");
           const data = await res.json();
