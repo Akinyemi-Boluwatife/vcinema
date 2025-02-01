@@ -200,18 +200,18 @@ function MovieList({ movie, onAddSelectedId }) {
         <img src={movie.Poster} alt="poster" />
       </div>
 
-      <div className="ttl-yyr">
+      {/* <div className="ttl-yyr">
         <div>
           <p className="bold">{movie.Title}</p>
         </div>
 
         <div>
           <p>
-            {/* <span>📅</span>  */}
+            <span>📅</span> 
             {movie.Year}
           </p>
-        </div>
-      </div>
+        </div> 
+      </div>*/}
     </li>
   );
 }

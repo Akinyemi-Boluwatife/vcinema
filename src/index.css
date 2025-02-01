@@ -115,8 +115,8 @@ img {
   display: flex;
   /* display: grid;
   grid-template-columns: 1fr 4fr; */
-  /* gap: 0.5rem; */
-  /* border: 2px solid green; */
+  gap: 0.5rem;
+  border: 2px solid green;
   padding: 0.4rem 1rem;
   height: 100px;
   /* overflow: hidden; */
