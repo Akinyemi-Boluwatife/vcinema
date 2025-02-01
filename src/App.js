@@ -201,13 +201,16 @@ function MovieList({ movie, onAddSelectedId }) {
       </div>
 
       <div className="ttl-yyr">
-        <p>
-          <span className="bold">{movie.Title}</span>
-        </p>
-        <p>
-          {/* <span>📅</span>  */}
-          {movie.Year}
-        </p>
+        <div>
+          <p className="bold">{movie.Title}</p>
+        </div>
+
+        <div>
+          <p>
+            {/* <span>📅</span>  */}
+            {movie.Year}
+          </p>
+        </div>
       </div>
     </li>
   );

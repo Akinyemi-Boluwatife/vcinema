@@ -124,7 +124,7 @@ img {
   flex-direction: column;
   justify-content: space-between;
 
-  /* border: 2px solid black; */
+  border: 2px solid black;
 }
 .stat {
   background-color: #4193b4;
