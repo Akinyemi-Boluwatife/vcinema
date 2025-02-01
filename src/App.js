@@ -195,23 +195,25 @@ function Movie({ movie, onAddSelectedId }) {
 
 function MovieList({ movie, onAddSelectedId }) {
   return (
-    <li className="list-des" onClick={() => onAddSelectedId(movie.imdbID)}>
-      <div className="li-img">
-        <img src={movie.Poster} alt="poster" />
-      </div>
-
-      {/* <div className="ttl-yyr">
-        <div>
-          <p className="bold">{movie.Title}</p>
+    <li onClick={() => onAddSelectedId(movie.imdbID)}>
+      <div className="list-des">
+        <div className="li-img">
+          <img src={movie.Poster} alt="poster" />
         </div>
 
-        <div>
-          <p>
-            <span>📅</span> 
-            {movie.Year}
-          </p>
-        </div> 
-      </div>*/}
+        <div className="ttl-yyr">
+          <div>
+            <p className="bold">{movie.Title}</p>
+          </div>
+
+          <div>
+            <p>
+              <span>📅</span>
+              {movie.Year}
+            </p>
+          </div>
+        </div>
+      </div>
     </li>
   );
 }
