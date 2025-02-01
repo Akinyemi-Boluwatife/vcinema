@@ -205,7 +205,8 @@ function MovieList({ movie, onAddSelectedId }) {
           <span className="bold">{movie.Title}</span>
         </p>
         <p>
-          <span>📅</span> {movie.Year}
+          {/* <span>📅</span>  */}
+          {movie.Year}
         </p>
       </div>
     </li>
