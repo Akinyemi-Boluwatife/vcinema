@@ -117,7 +117,7 @@ img {
   /* border: 2px solid green; */
   padding: 0.4rem 1rem;
   height: 100px;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .ttl-yyr {
@@ -125,7 +125,7 @@ img {
   flex-direction: column;
   justify-content: space-between;
 
-  border: 2px solid black;
+  /* border: 2px solid black; */
 }
 .stat {
   background-color: #4193b4;
