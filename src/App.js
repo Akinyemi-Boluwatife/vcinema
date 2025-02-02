@@ -327,15 +327,34 @@ function SelectedMovie({
     onCloseMovie();
   }
 
-  useEffect(function () {
-    if (!title) return;
+  useEffect(
+    function () {
+      const callBack = function (e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+        }
+      };
+      document.addEventListener("keydown", callBack);
 
-    document.title = `Movie || ${title}`;
+      return function () {
+        document.removeEventListener("keydown", callBack);
+      };
+    },
+    [onCloseMovie]
+  );
 
-    return function () {
-      document.title = "Vcinema";
-    };
-  });
+  useEffect(
+    function () {
+      if (!title) return;
+
+      document.title = `Movie || ${title}`;
+
+      return function () {
+        document.title = "Vcinema";
+      };
+    },
+    [title]
+  );
 
   useEffect(
     function () {
