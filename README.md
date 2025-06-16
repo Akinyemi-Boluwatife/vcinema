@@ -1,70 +1,53 @@
-# Getting Started with Create React App
+# 🎬 Vcinema
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A sleek and interactive movie search platform powered by the OMDb API.
 
-## Available Scripts
+## 📽️ Overview
 
-In the project directory, you can run:
+**Vcinema** is a movie search and tracking web app that allows users to search for films, view detailed information, rate and favorite them, and track their personal viewing stats—all in a clean, user-friendly interface. It uses the OMDb API to fetch real movie data and demonstrates strong use of component composition and state management in React.
 
-### `npm start`
+## 🌟 Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- 🔍 Search for movies by title (real-time results)
+- 🎞️ View detailed movie info (poster, plot, actors, year, etc.)
+- ⭐ Add movies to a “Watched” list with personal rating
+- 📊 View stats like total number of watched movies and total time spent
+- ♻️ Built with reusable and composable components
+- 🧠 Uses `useEffect` cleanup and controlled component patterns
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🧰 Tech Stack
 
-### `npm test`
+- **React.js** – Built with Create React App (CRA)
+- **OMDb API** – Movie data source
+- **CSS** – Styling
+- **JavaScript (ES6+)** – Logic and interactivity
+- **Context API (optional enhancement)** – For scalable state if needed
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🧪 Project Highlights
 
-### `npm run build`
+- Component composition for modular and maintainable code
+- Local state management with useState and useEffect
+- Smart cleanup logic in `useEffect` to handle API calls
+- Responsive UI with conditional rendering and loading states
+- Placeholder for GitHub repo link inside the app
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## ⚙️ Getting Started
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Node.js and npm installed
 
-### `npm run eject`
+### Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+git clone https://github.com/your-username/vcinema.git
+cd vcinema
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Running the app
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- 1. npm start
+- 2. This app uses Omdb API and you'll need an API key
+- 3. Create a .env file and add REACT_APP_OMDB_KEY=your_api_key_here
+- 4.You can get a free key from http://www.omdbapi.com/apikey.aspx
