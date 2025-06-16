@@ -50,4 +50,4 @@ npm install
 - 1. npm start
 - 2. This app uses Omdb API and you'll need an API key
 - 3. Create a .env file and add REACT_APP_OMDB_KEY=your_api_key_here
-- 4.You can get a free key from http://www.omdbapi.com/apikey.aspx
+- 4. You can get a free key from http://www.omdbapi.com/apikey.aspx
