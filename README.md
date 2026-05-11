@@ -1,6 +1,6 @@
 # 🎬 Vcinema
 
-A sleek and interactive movie search platform powered by the OMDb API.
+A sleek and interactive movie search platform.
 
 ## 📽️ Overview
 
