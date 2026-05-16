@@ -12,7 +12,20 @@ function toMovie(row) {
     userRating: row.user_rating,
     runtime: row.runtime,
     status: row.status,
+    genres: row.genres ?? [],
+    director: row.director ?? null,
+    actors: row.actors ?? [],
+    watchedAt: row.watched_at ?? null,
   };
+}
+
+function splitOmdbList(value) {
+  if (!value || typeof value !== "string") return [];
+  if (value === "N/A") return [];
+  return value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 export async function getMoviesByStatus(status) {
@@ -57,6 +70,33 @@ export async function setMovieStatus(movie, status) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Not authenticated");
   const supabase = await createUserSupabaseClient(session.user.id);
+
+  const { data: existing } = await supabase
+    .from("watched_movies")
+    .select("status, watched_at")
+    .eq("user_id", session.user.id)
+    .eq("imdb_id", movie.imdbID)
+    .maybeSingle();
+
+  const now = new Date().toISOString();
+  const becomingWatched =
+    status === "watched" && existing?.status !== "watched";
+  const watchedAt =
+    status === "watched"
+      ? becomingWatched
+        ? now
+        : (existing?.watched_at ?? now)
+      : null;
+
+  const genres = Array.isArray(movie.genres)
+    ? movie.genres
+    : splitOmdbList(movie.genres);
+  const actors = Array.isArray(movie.actors)
+    ? movie.actors
+    : splitOmdbList(movie.actors);
+  const director =
+    movie.director && movie.director !== "N/A" ? movie.director : null;
+
   await supabase.from("watched_movies").upsert(
     {
       user_id: session.user.id,
@@ -68,7 +108,11 @@ export async function setMovieStatus(movie, status) {
       user_rating: movie.userRating ?? 0,
       runtime: movie.runtime,
       status,
-      updated_at: new Date().toISOString(),
+      genres,
+      director,
+      actors,
+      watched_at: watchedAt,
+      updated_at: now,
     },
     { onConflict: "user_id,imdb_id" }
   );
@@ -84,4 +128,3 @@ export async function removeFromList(imdbID) {
     .eq("user_id", session.user.id)
     .eq("imdb_id", imdbID);
 }
-

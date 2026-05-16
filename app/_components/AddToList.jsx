@@ -39,6 +39,9 @@ export default function AddToList({ movie, movieId, existingEntry }) {
     Poster: poster,
     Runtime: runtime,
     imdbRating,
+    Genre: genre,
+    Director: director,
+    Actors: actors,
   } = movie;
 
   const isPending = isPendingSave || isPendingRemove;
@@ -56,6 +59,9 @@ export default function AddToList({ movie, movieId, existingEntry }) {
           imdbRating: isNaN(parsedImdbRating) ? 0 : parsedImdbRating,
           userRating: status === "watched" ? userRating : 0,
           runtime: isNaN(parsedRuntime) ? 0 : parsedRuntime,
+          genres: genre,
+          director,
+          actors,
         },
         status
       );

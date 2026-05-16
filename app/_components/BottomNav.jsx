@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiMagnifyingGlass, HiFilm } from "react-icons/hi2";
+import { HiMagnifyingGlass, HiFilm, HiChartBar } from "react-icons/hi2";
 
 const navLinks = [
   { href: "/searchMovies", label: "Search", Icon: HiMagnifyingGlass },
   { href: "/watchedMovies", label: "My Lists", Icon: HiFilm },
+  { href: "/stats", label: "Stats", Icon: HiChartBar },
 ];
 
 export default function BottomNav() {

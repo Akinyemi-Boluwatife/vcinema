@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const navLinks = [
   { href: "/searchMovies", label: "Search" },
   { href: "/watchedMovies", label: "Watchlist" },
+  { href: "/stats", label: "Stats" },
 ];
 
 function NavigationWrapper() {

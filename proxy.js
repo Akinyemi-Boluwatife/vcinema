@@ -1,4 +1,4 @@
-export { auth as middleware } from "./auth-edge";
+export { auth as proxy } from "./auth-edge";
 
 export const config = {
   matcher: [
@@ -7,5 +7,7 @@ export const config = {
     "/watchedMovies",
     "/watchedMovies/:path*",
     "/movieDetails/:path*",
+    "/stats",
+    "/stats/:path*",
   ],
 };
