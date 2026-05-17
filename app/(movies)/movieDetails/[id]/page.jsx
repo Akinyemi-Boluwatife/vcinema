@@ -2,6 +2,7 @@ import { getMovieDetails } from "@/_lib/actions";
 import { getMovieEntry } from "@/_lib/watchedMovies";
 import MovieDetailClient from "./MovieDetailClient";
 import AddToList from "../../../_components/AddToList";
+import AddToCollectionMenu from "@/_components/collections/AddToCollectionMenu";
 
 export const metadata = {
   title: "Movie Details",
@@ -23,6 +24,7 @@ export default async function MovieDetailsPage({ params }) {
       />
 
       <AddToList movie={movie} movieId={id} existingEntry={existingEntry} />
+      <AddToCollectionMenu movie={movie} movieId={id} />
     </div>
   );
 }
