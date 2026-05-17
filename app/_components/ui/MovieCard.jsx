@@ -47,10 +47,23 @@ function SearchCard({ movie, status }) {
   );
 }
 
+function formatWatchedAt(iso) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('en-US', {
+    timeZone: 'UTC',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
 function WatchedCard({ movie }) {
-  const { imdbID, title, poster, imdbRating, userRating, runtime, status } = movie;
+  const { imdbID, title, poster, imdbRating, userRating, runtime, status, watchedAt } = movie;
   const validPoster = poster && poster !== 'N/A' ? poster : null;
   const badge = status ? STATUS_BADGE[status] : null;
+  const watchedDate = status === 'watched' ? formatWatchedAt(watchedAt) : null;
 
   return (
     <Link href={`/movieDetails/${imdbID}`} className="no-underline block">
@@ -79,6 +92,7 @@ function WatchedCard({ movie }) {
             {imdbRating > 0 && <span>⭐ {imdbRating}</span>}
             {status === 'watched' && userRating > 0 && <span className="text-primary">★ {userRating}/10</span>}
             {runtime > 0 && <span>⌛ {runtime}min</span>}
+            {watchedDate && <span>📅 {watchedDate}</span>}
           </div>
         </div>
       </div>

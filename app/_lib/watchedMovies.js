@@ -128,3 +128,71 @@ export async function removeFromList(imdbID) {
     .eq("user_id", session.user.id)
     .eq("imdb_id", imdbID);
 }
+
+export async function getWatchHistory({ year, limit } = {}) {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  const supabase = await createUserSupabaseClient(session.user.id);
+
+  let query = supabase
+    .from("watched_movies")
+    .select("*")
+    .eq("user_id", session.user.id)
+    .eq("status", "watched")
+    .not("watched_at", "is", null)
+    .order("watched_at", { ascending: false });
+
+  if (year) {
+    const start = `${year}-01-01T00:00:00.000Z`;
+    const end = `${Number(year) + 1}-01-01T00:00:00.000Z`;
+    query = query.gte("watched_at", start).lt("watched_at", end);
+  }
+  if (limit) query = query.limit(limit);
+
+  const { data } = await query;
+  return (data ?? []).map(toMovie);
+}
+
+export async function getWatchedYears() {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  const supabase = await createUserSupabaseClient(session.user.id);
+  const { data } = await supabase
+    .from("watched_movies")
+    .select("watched_at")
+    .eq("user_id", session.user.id)
+    .eq("status", "watched")
+    .not("watched_at", "is", null);
+  const years = new Set();
+  for (const row of data ?? []) {
+    const y = new Date(row.watched_at).getUTCFullYear();
+    if (Number.isFinite(y)) years.add(y);
+  }
+  return [...years].sort((a, b) => b - a);
+}
+
+export async function updateWatchedDate(imdbID, isoDateString) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  const parsed = new Date(isoDateString);
+  if (Number.isNaN(parsed.getTime())) throw new Error("Invalid date");
+  if (parsed.getTime() > Date.now() + 24 * 60 * 60 * 1000)
+    throw new Error("Date cannot be in the future");
+
+  const supabase = await createUserSupabaseClient(session.user.id);
+  const iso = parsed.toISOString();
+
+  const { data, error } = await supabase
+    .from("watched_movies")
+    .update({ watched_at: iso })
+    .eq("user_id", session.user.id)
+    .eq("imdb_id", imdbID)
+    .eq("status", "watched")
+    .select("watched_at")
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Movie is not marked watched");
+  return data.watched_at;
+}
