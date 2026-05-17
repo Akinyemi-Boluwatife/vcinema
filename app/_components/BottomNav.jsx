@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HiMagnifyingGlass, HiFilm, HiChartBar } from "react-icons/hi2";
+import {
+  HiMagnifyingGlass,
+  HiFilm,
+  HiChartBar,
+  HiQueueList,
+} from "react-icons/hi2";
 
 const navLinks = [
   { href: "/searchMovies", label: "Search", Icon: HiMagnifyingGlass },
-  { href: "/watchedMovies", label: "My Lists", Icon: HiFilm },
+  { href: "/watchedMovies", label: "Watched", Icon: HiFilm },
+  { href: "/lists", label: "Lists", Icon: HiQueueList },
   { href: "/stats", label: "Stats", Icon: HiChartBar },
 ];
 

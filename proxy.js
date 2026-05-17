@@ -9,5 +9,7 @@ export const config = {
     "/movieDetails/:path*",
     "/stats",
     "/stats/:path*",
+    "/lists",
+    "/lists/:path*",
   ],
 };
