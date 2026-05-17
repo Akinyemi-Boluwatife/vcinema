@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/_components/ui/Button";
 import { listMyCollections, createCollection, addItem } from "@/_lib/collections";
@@ -13,10 +13,12 @@ export default function AddToCollectionMenu({ movie, movieId }) {
   const [status, setStatus] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    if (!open || collections !== null) return;
-    listMyCollections().then((list) => setCollections(list));
-  }, [open, collections]);
+  function handleOpen() {
+    setOpen(true);
+    if (collections === null) {
+      listMyCollections().then((list) => setCollections(list));
+    }
+  }
 
   function snapshot() {
     return {
@@ -70,7 +72,7 @@ export default function AddToCollectionMenu({ movie, movieId }) {
       {!open ? (
         <Button
           variant="secondary"
-          onClick={() => setOpen(true)}
+          onClick={handleOpen}
           className="w-full rounded-xl py-3 text-sm"
         >
           + Add to collection

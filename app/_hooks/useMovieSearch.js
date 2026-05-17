@@ -1,20 +1,15 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
 
 export function useMovieSearch() {
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
   const { startNavigation } = useNavigation();
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const debounceRef = useRef(null);
-
-  // Read initial query from URL once on mount — no reactive subscription
-  useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("q") || "";
-    if (q) setQuery(q);
-  }, []);
 
   useEffect(() => {
     return () => {

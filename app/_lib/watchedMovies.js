@@ -28,7 +28,7 @@ function splitOmdbList(value) {
     .filter(Boolean);
 }
 
-export async function getMoviesByStatus(status) {
+/*export async function getMoviesByStatus(status) {
   const session = await auth();
   if (!session?.user?.id) return [];
   const supabase = await createUserSupabaseClient(session.user.id);
@@ -38,6 +38,37 @@ export async function getMoviesByStatus(status) {
     .eq("user_id", session.user.id)
     .eq("status", status)
     .order("updated_at", { ascending: false });
+  return (data ?? []).map(toMovie);
+}*/
+
+export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  const supabase = await createUserSupabaseClient(session.user.id);
+
+  // Map incoming sorting strings to your database columns
+  const columnMapping = {
+    imdbRating: "imdb_rating",
+    imdb_rating: "imdb_rating",
+    runtime: "runtime",
+    year: "year",
+    userRating: "user_rating",
+    user_rating: "user_rating",
+  };
+
+  // Fall back to 'updated_at' if no valid sortBy is provided
+  const targetColumn = columnMapping[sortBy] || "updated_at";
+
+  // Convert 'asc' or 'desc' string to Supabase's expected boolean format
+  const isAscending = sortOrder === "asc";
+
+  const { data } = await supabase
+    .from("watched_movies")
+    .select("*")
+    .eq("user_id", session.user.id)
+    .eq("status", status)
+    .order(targetColumn, { ascending: isAscending });
+
   return (data ?? []).map(toMovie);
 }
 
@@ -52,6 +83,18 @@ export async function getMovieStatuses(imdbIDs) {
     .in("imdb_id", imdbIDs);
   return Object.fromEntries((data ?? []).map((r) => [r.imdb_id, r.status]));
 }
+
+/*export async function getMovieStatuses(imdbIDs) {
+  const session = await auth();
+  if (!session?.user?.id || !imdbIDs.length) return {};
+  const supabase = await createUserSupabaseClient(session.user.id);
+  const { data } = await supabase
+    .from("watched_movies")
+    .select("imdb_id, status")
+    .eq("user_id", session.user.id)
+    .in("imdb_id", imdbIDs);
+  return Object.fromEntries((data ?? []).map((r) => [r.imdb_id, r.status]));
+}*/
 
 export async function getMovieEntry(imdbID) {
   const session = await auth();
@@ -195,4 +238,52 @@ export async function updateWatchedDate(imdbID, isoDateString) {
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Movie is not marked watched");
   return data.watched_at;
+}
+
+
+export async function getFilteredMovies(filters = {}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not authenticated");
+
+  const supabase = await createUserSupabaseClient(session.user.id);
+
+  let query = supabase
+    .from("watched_movies")
+    .select("*")
+    .eq("user_id", session.user.id);
+
+  // Apply optional filters dynamically
+  if (filters.year) {
+    query = query.ilike("year", `%${filters.year}%`);
+  }
+
+  if (filters.minRating !== undefined && filters.minRating !== null) {
+    query = query.gte("imdb_rating", filters.minRating);
+  }
+
+  if (filters.maxRating !== undefined && filters.maxRating !== null) {
+    query = query.lte("imdb_rating", filters.maxRating);
+  }
+
+  if (filters.minRuntime !== undefined && filters.minRuntime !== null) {
+    query = query.gte("runtime", filters.minRuntime);
+  }
+
+  if (filters.maxRuntime !== undefined && filters.maxRuntime !== null) {
+    query = query.lte("runtime", filters.maxRuntime);
+  }
+
+  if (filters.status) {
+    query = query.eq("status", filters.status);
+  }
+
+  // Sort by latest tracked movie
+  const { data, error } = await query.order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error filtering movies:", error.message);
+    throw new Error("Failed to fetch filtered movies");
+  }
+
+  return data;
 }

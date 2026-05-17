@@ -54,14 +54,12 @@ const LEVEL_FILL = {
   4: colors.primary,
 };
 
+const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 function formatLong(date) {
-  return date.toLocaleDateString("en-US", {
-    timeZone: "UTC",
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  const w = WEEKDAYS_SHORT[date.getUTCDay()];
+  const m = MONTH_LABELS[date.getUTCMonth()];
+  return `${w}, ${m} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
 }
 
 export default function HeatmapCalendar({ year, byDay }) {

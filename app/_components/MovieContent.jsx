@@ -21,8 +21,8 @@ const TAB_LABELS = {
 };
 
 // 👇 separate async component that does the fetching
-export async function MovieContent({ activeTab }) {
-  const movies = await getMoviesByStatus(activeTab);
+export async function MovieContent({ activeTab, sortBy, sortOrder }) {
+  const movies = await getMoviesByStatus(activeTab, sortBy, sortOrder);
   const { icon, text } = EMPTY_STATES[activeTab];
 
   return (
