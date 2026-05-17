@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import StarRating from "@/_components/StarRating";
 import Button from "@/_components/ui/Button";
+import EditWatchedDate from "@/_components/history/EditWatchedDate";
 import { setMovieStatus, removeFromList } from "@/_lib/watchedMovies";
 
 const STATUS_OPTIONS = [
@@ -159,6 +160,12 @@ export default function AddToList({ movie, movieId, existingEntry }) {
                 Current rating: {existingEntry.userRating}/10
               </p>
             )}
+          {existingEntry?.status === "watched" && (
+            <EditWatchedDate
+              imdbID={movieId}
+              watchedAt={existingEntry.watchedAt}
+            />
+          )}
         </div>
       )}
 

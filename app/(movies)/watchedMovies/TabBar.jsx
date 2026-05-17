@@ -7,6 +7,7 @@ const TABS = [
   { key: "watched", label: "Watched" },
   { key: "want_to_watch", label: "Want to Watch" },
   { key: "dropped", label: "Dropped" },
+  { key: "history", label: "History" },
 ];
 
 export default function TabBar() {
