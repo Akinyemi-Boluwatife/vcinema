@@ -1,8 +1,22 @@
 "use client";
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { HiPencilSquare } from "react-icons/hi2";
-import { updateWatchedDate } from "@/_lib/watchedMovies";
+import { useUpdateWatchedDate } from "@/_hooks/useUpdateWatchedDate";
+
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function toInputDate(iso) {
   if (!iso) return "";
@@ -18,12 +32,7 @@ function formatDisplay(iso) {
   if (!iso) return "Not set";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "Not set";
-  return d.toLocaleDateString("en-US", {
-    timeZone: "UTC",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return `${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
 
 const todayISO = (() => {
@@ -35,27 +44,19 @@ const todayISO = (() => {
 })();
 
 export default function EditWatchedDate({ imdbID, watchedAt, compact = false }) {
-  const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(toInputDate(watchedAt));
-  const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const { save, isPending, error, clearError } = useUpdateWatchedDate(imdbID);
 
-  function handleSave() {
-    if (!value) {
-      setError("Pick a date");
-      return;
-    }
-    setError("");
-    startTransition(async () => {
-      try {
-        await updateWatchedDate(imdbID, value);
-        setEditing(false);
-        router.refresh();
-      } catch (e) {
-        setError(e.message || "Could not update date");
-      }
-    });
+  async function handleSave() {
+    const ok = await save(value);
+    if (ok) setEditing(false);
+  }
+
+  function handleCancel() {
+    setEditing(false);
+    setValue(toInputDate(watchedAt));
+    clearError();
   }
 
   if (!editing) {
@@ -94,11 +95,7 @@ export default function EditWatchedDate({ imdbID, watchedAt, compact = false }) 
         </button>
         <button
           type="button"
-          onClick={() => {
-            setEditing(false);
-            setValue(toInputDate(watchedAt));
-            setError("");
-          }}
+          onClick={handleCancel}
           disabled={isPending}
           className="text-on-surface-variant hover:text-on-surface text-xs bg-transparent border-none cursor-pointer disabled:opacity-50"
         >

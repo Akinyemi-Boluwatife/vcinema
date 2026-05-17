@@ -6,12 +6,17 @@ import WatchHistoryView from "../../_components/history/WatchHistoryView";
 import TabBar from "./TabBar";
 
 export default async function WatchedMoviesPage({ searchParams }) {
-  const { tab, year } = await searchParams;
+  const { tab, year, sortBy = "imdb_rating", sortOrder = "desc" } = await searchParams;
   const activeTab = ["watched", "want_to_watch", "dropped", "history"].includes(
     tab
   )
     ? tab
     : "watched";
+
+
+
+
+
 
   const parsedYear = Number(year);
   const yearParam =
@@ -32,7 +37,7 @@ export default async function WatchedMoviesPage({ searchParams }) {
           {activeTab === "history" ? (
             <WatchHistoryView year={yearParam} />
           ) : (
-            <MovieContent activeTab={activeTab} />
+            <MovieContent activeTab={activeTab} sortBy={sortBy} sortOrder={sortOrder} />
           )}
         </TabContentWrapper>
       </Suspense>
