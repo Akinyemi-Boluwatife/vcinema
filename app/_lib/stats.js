@@ -1,6 +1,5 @@
 "use server";
-import { auth } from "../../auth";
-import { createUserSupabaseClient } from "./supabase";
+import { createServerSupabase } from "./supabase";
 import { getMovieDetails } from "./actions";
 
 const BACKFILL_CONCURRENCY = 5;
@@ -47,14 +46,16 @@ async function runWithConcurrency(items, limit, worker) {
 }
 
 export async function getWatchedWithMetadata() {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
 
   const { data } = await supabase
     .from("watched_movies")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("status", "watched");
 
   const rows = data ?? [];
@@ -85,7 +86,7 @@ export async function getWatchedWithMetadata() {
       await supabase
         .from("watched_movies")
         .update({ genres, director, actors })
-        .eq("user_id", session.user.id)
+        .eq("user_id", user.id)
         .eq("imdb_id", row.imdb_id);
     });
   }

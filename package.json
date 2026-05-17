@@ -8,12 +8,11 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.4",
-    "jose": "^6.2.3",
     "next": "^16.2.6",
-    "next-auth": "^5.0.0-beta.31",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.76.0",
     "react-icons": "^5.6.0",
     "recharts": "^3.8.1"
   },

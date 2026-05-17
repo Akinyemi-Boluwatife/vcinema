@@ -1,6 +1,5 @@
 "use server";
-import { auth } from "../../auth";
-import { createUserSupabaseClient } from "./supabase";
+import { createServerSupabase } from "./supabase";
 
 function toMovie(row) {
   return {
@@ -28,25 +27,18 @@ function splitOmdbList(value) {
     .filter(Boolean);
 }
 
-/*export async function getMoviesByStatus(status) {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  const supabase = await createUserSupabaseClient(session.user.id);
-  const { data } = await supabase
-    .from("watched_movies")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .eq("status", status)
-    .order("updated_at", { ascending: false });
-  return (data ?? []).map(toMovie);
-}*/
+async function currentUser() {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+}
 
 export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) return [];
 
-  // Map incoming sorting strings to your database columns
   const columnMapping = {
     imdbRating: "imdb_rating",
     imdb_rating: "imdb_rating",
@@ -56,16 +48,13 @@ export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
     user_rating: "user_rating",
   };
 
-  // Fall back to 'updated_at' if no valid sortBy is provided
   const targetColumn = columnMapping[sortBy] || "updated_at";
-
-  // Convert 'asc' or 'desc' string to Supabase's expected boolean format
   const isAscending = sortOrder === "asc";
 
   const { data } = await supabase
     .from("watched_movies")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("status", status)
     .order(targetColumn, { ascending: isAscending });
 
@@ -73,51 +62,36 @@ export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
 }
 
 export async function getMovieStatuses(imdbIDs) {
-  const session = await auth();
-  if (!session?.user?.id || !imdbIDs.length) return {};
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user || !imdbIDs.length) return {};
   const { data } = await supabase
     .from("watched_movies")
     .select("imdb_id, status")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .in("imdb_id", imdbIDs);
   return Object.fromEntries((data ?? []).map((r) => [r.imdb_id, r.status]));
 }
 
-/*export async function getMovieStatuses(imdbIDs) {
-  const session = await auth();
-  if (!session?.user?.id || !imdbIDs.length) return {};
-  const supabase = await createUserSupabaseClient(session.user.id);
-  const { data } = await supabase
-    .from("watched_movies")
-    .select("imdb_id, status")
-    .eq("user_id", session.user.id)
-    .in("imdb_id", imdbIDs);
-  return Object.fromEntries((data ?? []).map((r) => [r.imdb_id, r.status]));
-}*/
-
 export async function getMovieEntry(imdbID) {
-  const session = await auth();
-  if (!session?.user?.id) return null;
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) return null;
   const { data } = await supabase
     .from("watched_movies")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("imdb_id", imdbID)
     .maybeSingle();
   return data ? toMovie(data) : null;
 }
 
 export async function setMovieStatus(movie, status) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Not authenticated");
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) throw new Error("Not authenticated");
 
   const { data: existing } = await supabase
     .from("watched_movies")
     .select("status, watched_at")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("imdb_id", movie.imdbID)
     .maybeSingle();
 
@@ -142,7 +116,7 @@ export async function setMovieStatus(movie, status) {
 
   await supabase.from("watched_movies").upsert(
     {
-      user_id: session.user.id,
+      user_id: user.id,
       imdb_id: movie.imdbID,
       title: movie.title,
       poster: movie.poster,
@@ -162,25 +136,23 @@ export async function setMovieStatus(movie, status) {
 }
 
 export async function removeFromList(imdbID) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Not authenticated");
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) throw new Error("Not authenticated");
   await supabase
     .from("watched_movies")
     .delete()
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("imdb_id", imdbID);
 }
 
 export async function getWatchHistory({ year, limit } = {}) {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) return [];
 
   let query = supabase
     .from("watched_movies")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("status", "watched")
     .not("watched_at", "is", null)
     .order("watched_at", { ascending: false });
@@ -197,13 +169,12 @@ export async function getWatchHistory({ year, limit } = {}) {
 }
 
 export async function getWatchedYears() {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) return [];
   const { data } = await supabase
     .from("watched_movies")
     .select("watched_at")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("status", "watched")
     .not("watched_at", "is", null);
   const years = new Set();
@@ -215,21 +186,20 @@ export async function getWatchedYears() {
 }
 
 export async function updateWatchedDate(imdbID, isoDateString) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Not authenticated");
+  const { supabase, user } = await currentUser();
+  if (!user) throw new Error("Not authenticated");
 
   const parsed = new Date(isoDateString);
   if (Number.isNaN(parsed.getTime())) throw new Error("Invalid date");
   if (parsed.getTime() > Date.now() + 24 * 60 * 60 * 1000)
     throw new Error("Date cannot be in the future");
 
-  const supabase = await createUserSupabaseClient(session.user.id);
   const iso = parsed.toISOString();
 
   const { data, error } = await supabase
     .from("watched_movies")
     .update({ watched_at: iso })
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .eq("imdb_id", imdbID)
     .eq("status", "watched")
     .select("watched_at")
@@ -240,19 +210,15 @@ export async function updateWatchedDate(imdbID, isoDateString) {
   return data.watched_at;
 }
 
-
 export async function getFilteredMovies(filters = {}) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Not authenticated");
-
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) throw new Error("Not authenticated");
 
   let query = supabase
     .from("watched_movies")
     .select("*")
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 
-  // Apply optional filters dynamically
   if (filters.year) {
     query = query.ilike("year", `%${filters.year}%`);
   }
@@ -277,7 +243,6 @@ export async function getFilteredMovies(filters = {}) {
     query = query.eq("status", filters.status);
   }
 
-  // Sort by latest tracked movie
   const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) {

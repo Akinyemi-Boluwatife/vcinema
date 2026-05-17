@@ -1,12 +1,13 @@
 import { FcGoogle } from "react-icons/fc";
 import Logo from "@/_components/Logo";
+import SignInForm from "@/_components/auth/SignInForm";
 import { signInWithGoogle } from "@/_lib/actions";
 
 export const metadata = { title: "Sign in" };
 
 export default function SignInPage() {
   return (
-    <section className="min-h-screen flex items-center justify-center px-6">
+    <section className="min-h-screen flex items-center justify-center px-6 py-10">
       <div className="w-full max-w-sm space-y-8">
         <div className="flex flex-col items-center gap-3">
           <Logo />
@@ -24,6 +25,19 @@ export default function SignInPage() {
             Continue with Google
           </button>
         </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-outline-variant/40" />
+          </div>
+          <div className="relative flex justify-center">
+            <span className="bg-surface px-3 text-xs text-on-surface-variant">
+              or
+            </span>
+          </div>
+        </div>
+
+        <SignInForm />
       </div>
     </section>
   );

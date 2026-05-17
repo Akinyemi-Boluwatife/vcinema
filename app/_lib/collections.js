@@ -1,15 +1,6 @@
 "use server";
-import { createClient } from "@supabase/supabase-js";
-import { auth } from "../../auth";
-import { createUserSupabaseClient } from "./supabase";
+import { createServerSupabase, createAnonClient } from "./supabase";
 import { generateSlug } from "./slug";
-
-function anonClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  );
-}
 
 function toCollection(row, extra = {}) {
   return {
@@ -35,21 +26,28 @@ function toItem(row) {
   };
 }
 
-async function requireSession() {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Not authenticated");
-  return session;
+async function currentUser() {
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return { supabase, user };
+}
+
+async function requireUser() {
+  const { supabase, user } = await currentUser();
+  if (!user) throw new Error("Not authenticated");
+  return { supabase, user };
 }
 
 export async function listMyCollections() {
-  const session = await auth();
-  if (!session?.user?.id) return [];
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) return [];
 
   const { data: collections } = await supabase
     .from("collections")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
 
   const rows = collections ?? [];
@@ -82,15 +80,14 @@ export async function listMyCollections() {
 }
 
 export async function getMyCollection(id) {
-  const session = await auth();
-  if (!session?.user?.id) return null;
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await currentUser();
+  if (!user) return null;
 
   const { data: row } = await supabase
     .from("collections")
     .select("*")
     .eq("id", id)
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
   if (!row) return null;
 
@@ -105,7 +102,7 @@ export async function getMyCollection(id) {
 
 export async function getPublicCollectionBySlug(slug) {
   if (!slug) return null;
-  const supabase = anonClient();
+  const supabase = createAnonClient();
 
   const { data: row } = await supabase
     .from("collections")
@@ -125,15 +122,14 @@ export async function getPublicCollectionBySlug(slug) {
 }
 
 export async function createCollection({ title, description }) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
   const clean = (title ?? "").trim().slice(0, 120);
   if (!clean) throw new Error("Title required");
 
   const { data, error } = await supabase
     .from("collections")
     .insert({
-      user_id: session.user.id,
+      user_id: user.id,
       title: clean,
       description: (description ?? "").trim().slice(0, 500) || null,
     })
@@ -144,8 +140,7 @@ export async function createCollection({ title, description }) {
 }
 
 export async function updateCollectionMeta(id, { title, description }) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
   const patch = { updated_at: new Date().toISOString() };
   if (title !== undefined) {
     const clean = title.trim().slice(0, 120);
@@ -159,37 +154,39 @@ export async function updateCollectionMeta(id, { title, description }) {
     .from("collections")
     .update(patch)
     .eq("id", id)
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 }
 
 export async function deleteCollection(id) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
   await supabase
     .from("collections")
     .delete()
     .eq("id", id)
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 }
 
 export async function togglePublic(id) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
 
   const { data: row } = await supabase
     .from("collections")
     .select("is_public")
     .eq("id", id)
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
   if (!row) throw new Error("Not found");
 
   if (row.is_public) {
     await supabase
       .from("collections")
-      .update({ is_public: false, public_slug: null, updated_at: new Date().toISOString() })
+      .update({
+        is_public: false,
+        public_slug: null,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", id)
-      .eq("user_id", session.user.id);
+      .eq("user_id", user.id);
     return { isPublic: false, publicSlug: null };
   }
 
@@ -197,9 +194,13 @@ export async function togglePublic(id) {
     const slug = generateSlug();
     const { error } = await supabase
       .from("collections")
-      .update({ is_public: true, public_slug: slug, updated_at: new Date().toISOString() })
+      .update({
+        is_public: true,
+        public_slug: slug,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", id)
-      .eq("user_id", session.user.id);
+      .eq("user_id", user.id);
     if (!error) return { isPublic: true, publicSlug: slug };
     if (error.code !== "23505") throw new Error(error.message);
   }
@@ -207,14 +208,13 @@ export async function togglePublic(id) {
 }
 
 export async function addItem(collectionId, item) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
 
   const { data: owns } = await supabase
     .from("collections")
     .select("id")
     .eq("id", collectionId)
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
   if (!owns) throw new Error("Not found");
 
@@ -227,30 +227,27 @@ export async function addItem(collectionId, item) {
     .maybeSingle();
   const nextPos = (maxRow?.position ?? -1) + 1;
 
-  await supabase
-    .from("collection_items")
-    .upsert(
-      {
-        collection_id: collectionId,
-        imdb_id: item.imdbID,
-        title: item.title ?? "Untitled",
-        poster: item.poster && item.poster !== "N/A" ? item.poster : null,
-        year: item.year ?? null,
-        position: nextPos,
-      },
-      { onConflict: "collection_id,imdb_id", ignoreDuplicates: true }
-    );
+  await supabase.from("collection_items").upsert(
+    {
+      collection_id: collectionId,
+      imdb_id: item.imdbID,
+      title: item.title ?? "Untitled",
+      poster: item.poster && item.poster !== "N/A" ? item.poster : null,
+      year: item.year ?? null,
+      position: nextPos,
+    },
+    { onConflict: "collection_id,imdb_id", ignoreDuplicates: true }
+  );
 
   await supabase
     .from("collections")
     .update({ updated_at: new Date().toISOString() })
     .eq("id", collectionId)
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 }
 
 export async function removeItem(collectionId, imdbID) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
   await supabase
     .from("collection_items")
     .delete()
@@ -260,12 +257,11 @@ export async function removeItem(collectionId, imdbID) {
     .from("collections")
     .update({ updated_at: new Date().toISOString() })
     .eq("id", collectionId)
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 }
 
 export async function reorderItems(collectionId, orderedImdbIDs) {
-  const session = await requireSession();
-  const supabase = await createUserSupabaseClient(session.user.id);
+  const { supabase, user } = await requireUser();
 
   await Promise.all(
     orderedImdbIDs.map((imdbID, i) =>
@@ -280,5 +276,5 @@ export async function reorderItems(collectionId, orderedImdbIDs) {
     .from("collections")
     .update({ updated_at: new Date().toISOString() })
     .eq("id", collectionId)
-    .eq("user_id", session.user.id);
+    .eq("user_id", user.id);
 }

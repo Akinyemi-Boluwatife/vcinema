@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { HiArrowRight } from "react-icons/hi2";
-import { auth } from "../../auth";
+import { createServerSupabase } from "@/_lib/supabase";
 
 export async function HomePage() {
-  const session = await auth();
-  console.log(session);
+  const supabase = await createServerSupabase();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
       <div
@@ -31,11 +34,11 @@ export async function HomePage() {
           href="/searchMovies"
           className="group mt-10 inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-on-surface text-background text-sm font-semibold no-underline hover:opacity-90 transition-all duration-200"
         >
-          {session ? "Go to app" : "Get started"}
+          {user ? "Go to app" : "Get started"}
           <HiArrowRight className="text-base transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
 
-        {!session && (
+        {!user && (
           <p className="mt-6 text-xs text-on-surface-variant/60">
             <Link
               href="/signin"
