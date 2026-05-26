@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -173,6 +173,14 @@ export default function ProfileSettingsForm({ initial }) {
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // Before mount, resolvedTheme is unknown on the server — keep both outline
+  // so the first client render matches the server HTML and avoids hydration mismatch.
+  const isDark = mounted && resolvedTheme === "dark";
+  const isLight = mounted && resolvedTheme === "light";
+
   return (
     <div className="flex items-start justify-between gap-4">
       <span className="flex flex-col">
@@ -185,7 +193,7 @@ function ThemeToggle() {
         <Button
           type="button"
           size="sm"
-          variant={resolvedTheme === "dark" ? "default" : "outline"}
+          variant={isDark ? "default" : "outline"}
           onClick={() => setTheme("dark")}
           className="h-8 px-3 text-xs"
         >
@@ -194,7 +202,7 @@ function ThemeToggle() {
         <Button
           type="button"
           size="sm"
-          variant={resolvedTheme === "light" ? "default" : "outline"}
+          variant={isLight ? "default" : "outline"}
           onClick={() => setTheme("light")}
           className="h-8 px-3 text-xs"
         >

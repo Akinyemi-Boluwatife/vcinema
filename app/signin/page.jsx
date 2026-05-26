@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 export const metadata = { title: "Sign in" };
 
 const ERROR_COPY = {
-  auth_callback_failed:
-    "We couldn't complete that sign-in. Please try again.",
+  auth_callback_failed: "We couldn't complete that sign-in. Please try again.",
 };
 
 function safeNext(value) {
@@ -21,7 +20,8 @@ function safeNext(value) {
 export default async function SignInPage({ searchParams }) {
   const sp = (await searchParams) ?? {};
   const next = safeNext(sp.next);
-  const errorMessage = typeof sp.error === "string" ? ERROR_COPY[sp.error] : null;
+  const errorMessage =
+    typeof sp.error === "string" ? ERROR_COPY[sp.error] : null;
 
   return (
     <section className="min-h-screen flex items-center justify-center px-6 py-10 bg-background">
@@ -29,9 +29,7 @@ export default async function SignInPage({ searchParams }) {
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center gap-2">
             <Logo size={28} />
-            <h1 className="text-xl font-display mt-2 text-foreground">
-              Welcome back
-            </h1>
+
             <p className="text-muted-foreground text-sm text-center">
               Sign in to your private journal.
             </p>
