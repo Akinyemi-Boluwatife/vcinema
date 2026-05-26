@@ -1,5 +1,6 @@
 "use server";
-import { createServerSupabase, createAnonClient } from "./supabase";
+import { createAnonClient } from "./supabase";
+import { getAuthContext } from "./auth";
 
 const RESERVED = new Set([
   "admin",
@@ -103,16 +104,9 @@ function toCollection(row, extra = {}) {
   };
 }
 
-async function currentUser() {
-  const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return { supabase, user };
-}
 
 export async function getMyProfile() {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return null;
   const { data } = await supabase
     .from("profiles")
@@ -128,7 +122,7 @@ export async function updateMyProfile({
   showWatched,
   showStats,
 }) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return { error: "Not authenticated." };
 
   const patch = { updated_at: new Date().toISOString() };
@@ -231,7 +225,7 @@ export async function getPublicCollections(username) {
 }
 
 export async function setMyAvatar({ publicUrl, storagePath }) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return { error: "Not authenticated." };
 
   if (!storagePath || !storagePath.startsWith(`${user.id}/`)) {
@@ -261,7 +255,7 @@ export async function setMyAvatar({ publicUrl, storagePath }) {
 }
 
 export async function removeMyAvatar() {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return { error: "Not authenticated." };
 
   const { data: prev } = await supabase

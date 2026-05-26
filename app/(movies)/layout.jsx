@@ -1,14 +1,11 @@
 import { redirect } from "next/navigation";
 import BottomNav from "@/_components/layout/BottomNav";
 import { NavigationProvider } from "@/_contexts/NavigationContext";
-import { createServerSupabase } from "@/_lib/supabase";
+import { getAuthContext } from "@/_lib/auth";
 import Header from "@/_components/layout/Header";
 
 export default async function MoviesLayout({ children }) {
-  const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getAuthContext();
   if (!user) redirect("/signin");
 
   return (

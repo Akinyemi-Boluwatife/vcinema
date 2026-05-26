@@ -1,13 +1,10 @@
 import Link from "next/link";
-import { createServerSupabase } from "@/_lib/supabase";
+import { getAuthContext } from "@/_lib/auth";
 import Logo from "@/_components/layout/Logo";
 import { Button } from "@/components/ui/button";
 
 export async function HomePage() {
-  const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getAuthContext();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

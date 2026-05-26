@@ -1,5 +1,5 @@
 "use server";
-import { createServerSupabase } from "./supabase";
+import { getAuthContext } from "./auth";
 
 function toMovie(row) {
   return {
@@ -27,16 +27,8 @@ function splitOmdbList(value) {
     .filter(Boolean);
 }
 
-async function currentUser() {
-  const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return { supabase, user };
-}
-
 export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return [];
 
   const columnMapping = {
@@ -64,7 +56,7 @@ export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
 }
 
 export async function getMovieStatuses(imdbIDs) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user || !imdbIDs.length) return {};
   const { data } = await supabase
     .from("watched_movies")
@@ -75,7 +67,7 @@ export async function getMovieStatuses(imdbIDs) {
 }
 
 export async function getMovieEntry(imdbID) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return null;
   const { data } = await supabase
     .from("watched_movies")
@@ -87,7 +79,7 @@ export async function getMovieEntry(imdbID) {
 }
 
 export async function setMovieStatus(movie, status) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) throw new Error("Not authenticated");
 
   const { data: existing } = await supabase
@@ -136,7 +128,7 @@ export async function setMovieStatus(movie, status) {
 }
 
 export async function removeFromList(imdbID) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) throw new Error("Not authenticated");
   await supabase
     .from("watched_movies")
@@ -146,7 +138,7 @@ export async function removeFromList(imdbID) {
 }
 
 export async function getWatchHistory({ year, limit } = {}) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return [];
 
   let query = supabase
@@ -171,7 +163,7 @@ export async function getWatchHistory({ year, limit } = {}) {
 }
 
 export async function getWatchedYears() {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return [];
   const { data } = await supabase
     .from("watched_movies")
@@ -188,7 +180,7 @@ export async function getWatchedYears() {
 }
 
 export async function updateWatchedDate(imdbID, isoDateString) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) throw new Error("Not authenticated");
 
   const parsed = new Date(isoDateString);
@@ -215,7 +207,7 @@ export async function updateWatchedDate(imdbID, isoDateString) {
 }
 
 export async function getFilteredMovies(filters = {}) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) throw new Error("Not authenticated");
 
   let query = supabase

@@ -1,5 +1,6 @@
 "use server";
-import { createServerSupabase, createAnonClient } from "./supabase";
+import { createAnonClient } from "./supabase";
+import { getAuthContext } from "./auth";
 import { generateSlug } from "./slug";
 
 function toCollection(row, extra = {}) {
@@ -26,22 +27,14 @@ function toItem(row) {
   };
 }
 
-async function currentUser() {
-  const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return { supabase, user };
-}
-
 async function requireUser() {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) throw new Error("Not authenticated");
   return { supabase, user };
 }
 
 export async function listMyCollections() {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return [];
 
   const { data: collections } = await supabase
@@ -80,7 +73,7 @@ export async function listMyCollections() {
 }
 
 export async function getMyCollection(id) {
-  const { supabase, user } = await currentUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return null;
 
   const { data: row } = await supabase

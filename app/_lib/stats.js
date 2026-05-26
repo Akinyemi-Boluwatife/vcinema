@@ -1,5 +1,5 @@
 "use server";
-import { createServerSupabase } from "./supabase";
+import { getAuthContext } from "./auth";
 import { getMovieDetails } from "./omdb";
 import { generateTasteBlurb } from "./deepseek";
 
@@ -51,10 +51,7 @@ async function runWithConcurrency(items, limit, worker) {
 }
 
 export async function getWatchedWithMetadata() {
-  const supabase = await createServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getAuthContext();
   if (!user) return [];
 
   const { data } = await supabase
@@ -269,7 +266,7 @@ export async function aggregateStats(rows, userId = null) {
     : "Eclectic — keep rating to see your profile take shape.";
 
   if (userId) {
-    const supabase = await createServerSupabase();
+    const { supabase } = await getAuthContext();
     const { data: prof } = await supabase
       .from("profiles")
       .select("taste_blurb, taste_blurb_fingerprint")
