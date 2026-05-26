@@ -56,7 +56,7 @@ export async function MovieContent({ activeTab, sortBy, sortOrder, page = 1 }) {
       </div>
 
       {movies.length === 0 ? (
-        <div className="flex flex-col items-center text-center py-20 px-4">
+        <div className="flex flex-col items-center text-center py-12 sm:py-20 px-4">
           <Icon className="size-8 text-muted-foreground mb-4" aria-hidden />
           <p className="text-base font-medium text-foreground mb-1">{title}</p>
           <p className="text-sm text-muted-foreground mb-6">{subtitle}</p>

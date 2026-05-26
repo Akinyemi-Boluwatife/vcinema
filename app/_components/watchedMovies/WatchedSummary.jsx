@@ -9,7 +9,7 @@ export default function WatchedSummary({ watched }) {
 
   return (
     <Card className="mb-6">
-      <CardContent className="grid grid-cols-3 gap-6">
+      <CardContent className="grid grid-cols-3 gap-3 sm:gap-6">
         <Stat label="Films" value={watched.length} />
         <Stat label="Avg rating" value={avgRating.toFixed(1)} />
         <Stat label="Avg runtime" value={`${avgWatchTime.toFixed(0)}m`} />
@@ -24,7 +24,7 @@ function Stat({ label, value }) {
       <span className="text-micro">{label}</span>
       <span
         className="text-foreground font-semibold leading-none"
-        style={{ fontSize: 28, letterSpacing: "-0.02em" }}
+        style={{ fontSize: "clamp(20px, 5vw, 28px)", letterSpacing: "-0.02em" }}
       >
         {value}
       </span>

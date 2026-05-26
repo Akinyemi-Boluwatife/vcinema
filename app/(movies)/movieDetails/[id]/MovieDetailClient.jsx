@@ -45,7 +45,7 @@ export default function MovieDetailClient({ movie }) {
       </div>
 
       <div className="relative -mt-40 sm:-mt-48 z-10 flex flex-col sm:flex-row gap-5 sm:gap-8 items-start">
-        <div className="w-40 sm:w-52 flex-shrink-0">
+        <div className="w-40 sm:w-52 flex-shrink-0 mx-auto sm:mx-0">
           <div className="poster shadow-2xl">
             {validPoster ? (
               <img src={validPoster} alt={title} />
@@ -57,7 +57,7 @@ export default function MovieDetailClient({ movie }) {
           </div>
         </div>
         <div className="flex flex-col gap-3 flex-1 min-w-0 sm:pt-12">
-          <p className="text-micro">
+          <p className="text-micro line-clamp-2">
             {year}
             {runtime && runtime !== "N/A" ? ` · ${runtime}` : ""}
             {director && director !== "N/A" ? ` · Directed by ${director}` : ""}

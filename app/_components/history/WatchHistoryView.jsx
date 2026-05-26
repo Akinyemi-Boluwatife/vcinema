@@ -64,7 +64,7 @@ export default async function WatchHistoryView({ year, page = 1 }) {
           <p className="text-xs text-muted-foreground mb-4">
             {resolvedYear}
           </p>
-          <div style={{ height: 200 }}>
+          <div className="h-36 sm:h-[200px]">
             <MonthlyWatchChart data={history.byMonth} />
           </div>
         </CardContent>

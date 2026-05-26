@@ -35,7 +35,7 @@ export function TabsOptions() {
           <TabsTrigger
             key={key}
             value={key}
-            className="rounded-none border-t-0 border-x-0 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:!bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground dark:data-[state=active]:!bg-transparent dark:data-[state=active]:border-b-primary text-muted-foreground hover:text-foreground py-3 px-4 text-sm font-medium -mb-px"
+            className="rounded-none border-t-0 border-x-0 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:!bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground dark:data-[state=active]:!bg-transparent dark:data-[state=active]:border-b-primary text-muted-foreground hover:text-foreground py-2.5 px-2.5 sm:px-4 text-xs sm:text-sm font-medium -mb-px whitespace-nowrap"
           >
             {label}
           </TabsTrigger>
