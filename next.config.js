@@ -15,6 +15,11 @@ const csp = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    staleTimes: {
+      dynamic: 30,
+    },
+  },
   images: {
     remotePatterns: [
       {
