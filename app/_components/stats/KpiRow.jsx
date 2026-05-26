@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 function formatHours(min) {
   if (!min) return "0h";
   const h = Math.round(min / 60);
@@ -6,27 +8,47 @@ function formatHours(min) {
 
 export default function KpiRow({ kpis }) {
   const items = [
-    { label: "Films", value: kpis.totalFilms },
+    { label: "Films", value: String(kpis.totalFilms) },
     {
-      label: "Avg Rating",
-      value: kpis.avgUserRating > 0 ? `★ ${kpis.avgUserRating.toFixed(1)}` : "—",
+      label: "Avg rating",
+      value: kpis.avgUserRating > 0 ? kpis.avgUserRating.toFixed(1) : "—",
+      delta: kpis.totalFilms ? `across ${kpis.totalFilms} films` : null,
     },
-    { label: "Total Time", value: formatHours(kpis.totalRuntimeMinutes) },
-    { label: "Directors", value: kpis.distinctDirectors },
+    {
+      label: "Total hours",
+      value: formatHours(kpis.totalRuntimeMinutes),
+      delta:
+        kpis.totalRuntimeMinutes > 1440
+          ? `${(kpis.totalRuntimeMinutes / 1440).toFixed(1)} days`
+          : null,
+    },
+    {
+      label: "Unique directors",
+      value: String(kpis.distinctDirectors),
+    },
   ];
 
   return (
-    <div className="flex gap-4 p-4 mb-4 bg-surface-high rounded-lg border border-outline-variant/30">
-      {items.map((it, i) => (
-        <div key={it.label} className="flex flex-1 items-stretch">
-          <div className="text-center flex-1">
-            <p className="text-primary text-xl font-bold">{it.value}</p>
-            <p className="text-on-surface-variant text-xs uppercase tracking-widest mt-0.5">
-              {it.label}
-            </p>
-          </div>
-          {i < items.length - 1 && <div className="w-px bg-outline-variant/40 ml-4" />}
-        </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      {items.map((it) => (
+        <Card key={it.label} size="sm">
+          <CardContent>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-micro">{it.label}</span>
+              <span
+                className="text-foreground font-semibold leading-none"
+                style={{ fontSize: 28, letterSpacing: "-0.02em" }}
+              >
+                {it.value}
+              </span>
+              {it.delta && (
+                <span className="text-xs text-muted-foreground">
+                  {it.delta}
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

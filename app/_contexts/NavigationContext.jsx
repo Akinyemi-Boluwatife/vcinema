@@ -20,9 +20,5 @@ export function NavigationProvider({ children }) {
 }
 
 export function useNavigation() {
-  const context = useContext(NavigationContext);
-  if (context === undefined)
-    throw new Error("UseNavigation was called outside context");
-
-  return context;
+  return useContext(NavigationContext);
 }

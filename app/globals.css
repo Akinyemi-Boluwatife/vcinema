@@ -1,18 +1,420 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Roboto+Slab:wght@400;500;600;700&display=swap");
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  /* ---------- shadcn tokens ---------- */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* ---------- Cinema palette ---------- */
+  --color-bg-page: var(--bg-page);
+  --color-bg-card: var(--bg-card);
+  --color-bg-elev: var(--bg-elev);
+  --color-bg-elev-2: var(--bg-elev-2);
+  --color-fg-1: var(--fg-1);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-fg-muted: var(--fg-muted);
+  --color-cinema-accent: var(--cinema-accent);
+  --color-cinema-accent-soft: var(--cinema-accent-soft);
+  --color-cinema-accent-hover: var(--cinema-accent-hover);
+  --color-cinema-accent-press: var(--cinema-accent-press);
+
+  /* ---------- Backwards-compat tokens (legacy class names) ---------- */
+  --color-surface: var(--bg-page);
+  --color-surface-lowest: var(--bg-page);
+  --color-surface-low: var(--bg-card);
+  --color-surface-mid: var(--bg-elev);
+  --color-surface-high: var(--bg-elev-2);
+  --color-surface-highest: var(--bg-elev-2);
+  --color-surface-bright: var(--bg-elev-2);
+  --color-surface-variant: var(--bg-elev);
+  --color-on-surface: var(--fg-1);
+  --color-on-surface-variant: var(--fg-2);
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffffff;
+  --color-primary-container: var(--cinema-accent);
+  --color-primary-dim: var(--cinema-accent-press);
+  --color-outline: var(--outline-color);
+  --color-outline-variant: var(--outline-variant-color);
+  --color-error: var(--destructive);
+  --color-error-container: var(--error-container);
+
+  /* ---------- Typography ---------- */
+  --font-sans: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-heading: "Roboto Slab", "Georgia", serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  /* ---------- Radii ---------- */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ===================== LIGHT MODE (default / :root) — preset b5YNMlcjtw =====================
+   style: nova, baseColor: olive, theme: blue
+   Primary overridden from olive to blue (oklch(0.488 0.243 264.376) ≈ blue-700)
+   ========================================================================================= */
+:root {
+  /* ---------- Cinema design tokens (light) ---------- */
+  --bg-page: oklch(1 0 0);
+  --bg-card: oklch(1 0 0);
+  --bg-elev: oklch(0.966 0.005 106.5);
+  --bg-elev-2: oklch(0.93 0.007 106.5);
+
+  --fg-1: #09090b;
+  --fg-2: #27272a;
+  --fg-3: #52525b;
+  --fg-muted: #a1a1aa;
+
+  /* Blue accent (theme: blue override on olive base) */
+  --cinema-accent: oklch(0.488 0.243 264.376);
+  --cinema-accent-hover: oklch(0.546 0.245 264.376);
+  --cinema-accent-press: oklch(0.428 0.243 264.376);
+  --cinema-accent-soft: oklch(0.488 0.243 264.376 / 0.12);
+  --cinema-accent-ring: oklch(0.488 0.243 264.376 / 0.35);
+
+  /* ---------- Heatmap / overlay tokens ---------- */
+  --heatmap-empty: oklch(0.93 0.007 106.5);
+  --heatmap-l1: oklch(0.488 0.243 264.376 / 0.2);
+  --heatmap-l2: oklch(0.488 0.243 264.376 / 0.4);
+  --heatmap-l3: oklch(0.488 0.243 264.376 / 0.65);
+  --heatmap-l4: oklch(0.488 0.243 264.376 / 0.95);
+  --poster-watched-badge: oklch(0.488 0.243 264.376 / 0.85);
+
+  /* ---------- Outline tokens ---------- */
+  --outline-color: rgba(0, 0, 0, 0.14);
+  --outline-variant-color: rgba(0, 0, 0, 0.08);
+
+  /* ---------- shadcn tokens (olive base + blue primary) ---------- */
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
+  --primary: oklch(0.488 0.243 264.376);
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.966 0.005 106.5);
+  --secondary-foreground: #09090b;
+  --muted: oklch(0.966 0.005 106.5);
+  --muted-foreground: #3f3f46;
+  --accent: oklch(0.966 0.005 106.5);
+  --accent-foreground: #09090b;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
+  --error-container: oklch(0.577 0.245 27.325 / 0.18);
+  --border: oklch(0.93 0.007 106.5);
+  --input: oklch(0.93 0.007 106.5);
+  --ring: oklch(0.488 0.243 264.376);
+
+  /* Olive-based chart palette (preset chartColor: red — using olive scale for base) */
+  --chart-1: oklch(0.88 0.011 106.6);
+  --chart-2: oklch(0.58 0.031 107.3);
+  --chart-3: oklch(0.466 0.025 107.3);
+  --chart-4: oklch(0.394 0.023 107.4);
+  --chart-5: oklch(0.286 0.016 107.4);
+
+  --radius: 0.625rem;
+
+  color-scheme: light;
+}
+
+/* ===================== DARK MODE — existing cinema palette (unchanged) ===================== */
+.dark {
+  /* ---------- Cinema design tokens (dark) ---------- */
+  --bg-page: #0a0a0b;
+  --bg-card: #121214;
+  --bg-elev: #1a1a1d;
+  --bg-elev-2: #232327;
+
+  --fg-1: #fafafa;
+  --fg-2: #a1a1a6;
+  --fg-3: #6b6b70;
+  --fg-muted: #3f3f44;
+
+  --cinema-accent: #ef4444;
+  --cinema-accent-hover: #f87171;
+  --cinema-accent-press: #dc2626;
+  --cinema-accent-soft: rgba(239, 68, 68, 0.12);
+  --cinema-accent-ring: rgba(239, 68, 68, 0.35);
+
+  /* ---------- Heatmap / overlay tokens ---------- */
+  --heatmap-empty: rgba(255, 255, 255, 0.04);
+  --heatmap-l1: rgba(239, 68, 68, 0.2);
+  --heatmap-l2: rgba(239, 68, 68, 0.4);
+  --heatmap-l3: rgba(239, 68, 68, 0.65);
+  --heatmap-l4: rgba(239, 68, 68, 0.95);
+  --poster-watched-badge: rgba(239, 68, 68, 0.85);
+
+  /* ---------- Outline tokens ---------- */
+  --outline-color: rgba(255, 255, 255, 0.14);
+  --outline-variant-color: rgba(255, 255, 255, 0.08);
+
+  /* ---------- shadcn tokens ---------- */
+  --background: var(--bg-page);
+  --foreground: var(--fg-1);
+  --card: var(--bg-card);
+  --card-foreground: var(--fg-1);
+  --popover: var(--bg-elev);
+  --popover-foreground: var(--fg-1);
+  --primary: var(--cinema-accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-elev);
+  --secondary-foreground: var(--fg-1);
+  --muted: var(--bg-elev);
+  --muted-foreground: var(--fg-2);
+  --accent: var(--bg-elev-2);
+  --accent-foreground: var(--fg-1);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --error-container: rgba(239, 68, 68, 0.18);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: rgba(239, 68, 68, 0.35);
+
+  --chart-1: #ef4444;
+  --chart-2: rgba(239, 68, 68, 0.7);
+  --chart-3: rgba(239, 68, 68, 0.45);
+  --chart-4: rgba(239, 68, 68, 0.25);
+  --chart-5: rgba(255, 255, 255, 0.12);
+
+  --radius: 0.625rem;
+
+  color-scheme: dark;
+}
 
 @layer base {
-  body {
-    @apply font-montserrat text-on-surface bg-background min-h-screen;
-    box-sizing: border-box;
-  }
-
   *,
   *::before,
   *::after {
     box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  ::selection {
+    background: var(--cinema-accent-soft);
+    color: var(--fg-1);
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+  .text-display {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .text-micro {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+  }
+
+  .v-logo {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--fg-1);
+    line-height: 1;
+    user-select: none;
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .v-logo .v {
+    font-size: 1.15em;
+  }
+
+  .v-container {
+    max-width: 1280px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  @media (max-width: 640px) {
+    .v-container {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+
+  .poster {
+    display: block;
+    aspect-ratio: 2 / 3;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    transition: border-color 150ms cubic-bezier(0.2, 0, 0, 1);
+  }
+  .poster:hover {
+    border-color: var(--cinema-accent);
+  }
+  .poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .poster-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+  }
+  .poster-overlay--watched {
+    background: var(--poster-watched-badge);
+  }
+  .poster-overlay--dropped {
+    color: var(--fg-2);
+  }
+
+  .heatmap {
+    display: grid;
+    grid-template-rows: repeat(7, 12px);
+    grid-auto-flow: column;
+    gap: 3px;
+  }
+  .heatmap .cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+  .heatmap .cell.l0 {
+    background: var(--heatmap-empty);
+  }
+  .heatmap .cell.l1 {
+    background: var(--heatmap-l1);
+  }
+  .heatmap .cell.l2 {
+    background: var(--heatmap-l2);
+  }
+  .heatmap .cell.l3 {
+    background: var(--heatmap-l3);
+  }
+  .heatmap .cell.l4 {
+    background: var(--heatmap-l4);
+  }
+
+  .nav-underline-active {
+    position: relative;
+  }
+  .nav-underline-active::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -2px;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 2px;
+    background: var(--cinema-accent);
+    border-radius: 2px;
+  }
+
+  .detail-backdrop {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+  }
+  .detail-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--bg-page) 40%, transparent) 0%,
+      color-mix(in srgb, var(--bg-page) 70%, transparent) 60%,
+      var(--bg-page) 100%
+    );
+    z-index: 1;
+  }
+  .detail-backdrop img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) brightness(0.6);
+  }
+
+  .divider-or {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--fg-3);
+    font-size: 12px;
+  }
+  .divider-or::before,
+  .divider-or::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
   }
 }

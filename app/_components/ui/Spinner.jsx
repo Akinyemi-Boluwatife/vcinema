@@ -1,9 +1,15 @@
-const sizes = { sm: 'h-5 w-5', md: 'h-8 w-8', lg: 'h-12 w-12' };
+const sizes = {
+  sm: "size-4 border-2",
+  md: "size-7 border-[2.5px]",
+  lg: "size-10 border-[3px]",
+};
 
-export default function Spinner({ size = 'md' }) {
+export default function Spinner({ size = "md" }) {
   return (
     <div
-      className={`${sizes[size]} border-2 border-surface-high border-t-primary-container rounded-full animate-spin`}
+      role="status"
+      aria-label="Loading"
+      className={`${sizes[size]} border-border border-t-primary rounded-full animate-spin`}
     />
   );
 }

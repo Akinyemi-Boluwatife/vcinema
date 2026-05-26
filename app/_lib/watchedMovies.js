@@ -53,7 +53,9 @@ export async function getMoviesByStatus(status, sortBy, sortOrder = "desc") {
 
   const { data } = await supabase
     .from("watched_movies")
-    .select("*")
+    .select(
+      "imdb_id, title, poster, year, imdb_rating, user_rating, runtime, status, watched_at, updated_at",
+    )
     .eq("user_id", user.id)
     .eq("status", status)
     .order(targetColumn, { ascending: isAscending });
@@ -99,11 +101,9 @@ export async function setMovieStatus(movie, status) {
   const becomingWatched =
     status === "watched" && existing?.status !== "watched";
   const watchedAt =
-    status === "watched"
-      ? becomingWatched
-        ? now
-        : (existing?.watched_at ?? now)
-      : null;
+    becomingWatched && !existing?.watched_at
+      ? now
+      : (existing?.watched_at ?? null);
 
   const genres = Array.isArray(movie.genres)
     ? movie.genres
@@ -151,7 +151,9 @@ export async function getWatchHistory({ year, limit } = {}) {
 
   let query = supabase
     .from("watched_movies")
-    .select("*")
+    .select(
+      "imdb_id, title, poster, year, imdb_rating, user_rating, runtime, status, watched_at",
+    )
     .eq("user_id", user.id)
     .eq("status", "watched")
     .not("watched_at", "is", null)
@@ -193,6 +195,8 @@ export async function updateWatchedDate(imdbID, isoDateString) {
   if (Number.isNaN(parsed.getTime())) throw new Error("Invalid date");
   if (parsed.getTime() > Date.now() + 24 * 60 * 60 * 1000)
     throw new Error("Date cannot be in the future");
+  if (parsed.getUTCFullYear() < 1900)
+    throw new Error("Date is too far in the past");
 
   const iso = parsed.toISOString();
 
@@ -220,24 +224,23 @@ export async function getFilteredMovies(filters = {}) {
     .eq("user_id", user.id);
 
   if (filters.year) {
-    query = query.ilike("year", `%${filters.year}%`);
+    const y = Number(filters.year);
+    if (Number.isInteger(y) && y >= 1800 && y <= 2999) {
+      query = query.ilike("year", `%${y}%`);
+    }
   }
 
-  if (filters.minRating !== undefined && filters.minRating !== null) {
-    query = query.gte("imdb_rating", filters.minRating);
-  }
+  const minR = Number(filters.minRating);
+  if (Number.isFinite(minR)) query = query.gte("imdb_rating", minR);
 
-  if (filters.maxRating !== undefined && filters.maxRating !== null) {
-    query = query.lte("imdb_rating", filters.maxRating);
-  }
+  const maxR = Number(filters.maxRating);
+  if (Number.isFinite(maxR)) query = query.lte("imdb_rating", maxR);
 
-  if (filters.minRuntime !== undefined && filters.minRuntime !== null) {
-    query = query.gte("runtime", filters.minRuntime);
-  }
+  const minRt = Number(filters.minRuntime);
+  if (Number.isFinite(minRt)) query = query.gte("runtime", minRt);
 
-  if (filters.maxRuntime !== undefined && filters.maxRuntime !== null) {
-    query = query.lte("runtime", filters.maxRuntime);
-  }
+  const maxRt = Number(filters.maxRuntime);
+  if (Number.isFinite(maxRt)) query = query.lte("runtime", maxRt);
 
   if (filters.status) {
     query = query.eq("status", filters.status);

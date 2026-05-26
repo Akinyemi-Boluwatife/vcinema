@@ -8,9 +8,8 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { colors } from "@/_styles/tokens";
 
-const tickStyle = { fill: colors.onSurfaceVariant, fontSize: 11 };
+const tickStyle = { fill: "var(--fg-2)", fontSize: 11 };
 
 function formatMonth(m) {
   const [y, mm] = m.split("-");
@@ -23,7 +22,7 @@ export default function MonthlyWatchChart({ data }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-        <CartesianGrid stroke={colors.outlineVariant} strokeOpacity={0.3} vertical={false} />
+        <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
         <XAxis
           dataKey="month"
           tickFormatter={formatMonth}
@@ -38,17 +37,21 @@ export default function MonthlyWatchChart({ data }) {
           tickLine={false}
         />
         <Tooltip
-          cursor={{ fill: colors.surfaceVariant, opacity: 0.4 }}
+          cursor={{ fill: "rgba(255,255,255,0.04)" }}
           contentStyle={{
-            background: colors.surfaceContainerHigh,
-            border: `1px solid ${colors.outlineVariant}`,
+            background: "var(--bg-elev)",
+            border: "1px solid var(--border)",
             borderRadius: 8,
             fontSize: 12,
-            color: colors.onSurface,
+            color: "var(--fg-1)",
           }}
           labelFormatter={formatMonth}
         />
-        <Bar dataKey="count" fill={colors.primary} radius={[4, 4, 0, 0]} />
+        <Bar
+          dataKey="count"
+          fill="var(--cinema-accent)"
+          radius={[4, 4, 0, 0]}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

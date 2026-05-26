@@ -9,17 +9,16 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { colors } from "@/_styles/tokens";
 
 const palette = [
-  colors.primary,
-  colors.tertiary,
-  colors.secondaryFixed,
-  colors.primaryContainer,
-  colors.tertiaryContainer,
+  "rgba(225, 29, 46, 0.85)",
+  "rgba(225, 29, 46, 0.6)",
+  "rgba(225, 29, 46, 0.4)",
+  "rgba(225, 29, 46, 0.25)",
+  "rgba(255, 255, 255, 0.12)",
 ];
 
-const tickStyle = { fill: colors.onSurfaceVariant, fontSize: 11 };
+const tickStyle = { fill: "var(--fg-2)", fontSize: 11 };
 
 function formatMonth(m) {
   const [y, mm] = m.split("-");
@@ -31,7 +30,7 @@ function formatMonth(m) {
 export default function GenresOverTimeChart({ data, genres }) {
   if (!genres || genres.length === 0) {
     return (
-      <div className="flex items-center justify-center h-full text-on-surface-variant text-xs">
+      <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
         Not enough genre data yet.
       </div>
     );
@@ -39,7 +38,7 @@ export default function GenresOverTimeChart({ data, genres }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-        <CartesianGrid stroke={colors.outlineVariant} strokeOpacity={0.3} vertical={false} />
+        <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
         <XAxis
           dataKey="month"
           tickFormatter={formatMonth}
@@ -47,18 +46,26 @@ export default function GenresOverTimeChart({ data, genres }) {
           axisLine={false}
           tickLine={false}
         />
-        <YAxis tick={tickStyle} allowDecimals={false} axisLine={false} tickLine={false} />
+        <YAxis
+          tick={tickStyle}
+          allowDecimals={false}
+          axisLine={false}
+          tickLine={false}
+        />
         <Tooltip
           contentStyle={{
-            background: colors.surfaceContainerHigh,
-            border: `1px solid ${colors.outlineVariant}`,
+            background: "var(--bg-elev)",
+            border: "1px solid var(--border)",
             borderRadius: 8,
             fontSize: 12,
-            color: colors.onSurface,
+            color: "var(--fg-1)",
           }}
           labelFormatter={formatMonth}
         />
-        <Legend wrapperStyle={{ fontSize: 11, color: colors.onSurfaceVariant }} />
+        <Legend
+          wrapperStyle={{ fontSize: 11, color: "var(--fg-2)" }}
+          iconType="square"
+        />
         {genres.map((g, i) => (
           <Area
             key={g}
@@ -67,7 +74,7 @@ export default function GenresOverTimeChart({ data, genres }) {
             stackId="1"
             stroke={palette[i % palette.length]}
             fill={palette[i % palette.length]}
-            fillOpacity={0.6}
+            fillOpacity={0.85}
           />
         ))}
       </AreaChart>

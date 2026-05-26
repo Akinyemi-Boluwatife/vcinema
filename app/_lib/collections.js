@@ -208,6 +208,20 @@ export async function togglePublic(id) {
 }
 
 export async function addItem(collectionId, item) {
+  const { supabase } = await requireUser();
+
+  const { data, error } = await supabase.rpc("collection_add_item", {
+    p_collection_id: collectionId,
+    p_imdb_id: item.imdbID,
+    p_title: item.title ?? "Untitled",
+    p_poster: item.poster && item.poster !== "N/A" ? item.poster : null,
+    p_year: item.year ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return { added: data === true };
+}
+
+export async function removeItem(collectionId, imdbID) {
   const { supabase, user } = await requireUser();
 
   const { data: owns } = await supabase
@@ -218,36 +232,6 @@ export async function addItem(collectionId, item) {
     .maybeSingle();
   if (!owns) throw new Error("Not found");
 
-  const { data: maxRow } = await supabase
-    .from("collection_items")
-    .select("position")
-    .eq("collection_id", collectionId)
-    .order("position", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const nextPos = (maxRow?.position ?? -1) + 1;
-
-  await supabase.from("collection_items").upsert(
-    {
-      collection_id: collectionId,
-      imdb_id: item.imdbID,
-      title: item.title ?? "Untitled",
-      poster: item.poster && item.poster !== "N/A" ? item.poster : null,
-      year: item.year ?? null,
-      position: nextPos,
-    },
-    { onConflict: "collection_id,imdb_id", ignoreDuplicates: true }
-  );
-
-  await supabase
-    .from("collections")
-    .update({ updated_at: new Date().toISOString() })
-    .eq("id", collectionId)
-    .eq("user_id", user.id);
-}
-
-export async function removeItem(collectionId, imdbID) {
-  const { supabase, user } = await requireUser();
   await supabase
     .from("collection_items")
     .delete()
@@ -261,20 +245,11 @@ export async function removeItem(collectionId, imdbID) {
 }
 
 export async function reorderItems(collectionId, orderedImdbIDs) {
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
 
-  await Promise.all(
-    orderedImdbIDs.map((imdbID, i) =>
-      supabase
-        .from("collection_items")
-        .update({ position: i })
-        .eq("collection_id", collectionId)
-        .eq("imdb_id", imdbID)
-    )
-  );
-  await supabase
-    .from("collections")
-    .update({ updated_at: new Date().toISOString() })
-    .eq("id", collectionId)
-    .eq("user_id", user.id);
+  const { error } = await supabase.rpc("collection_reorder", {
+    p_collection_id: collectionId,
+    p_ordered_imdb_ids: orderedImdbIDs,
+  });
+  if (error) throw new Error(error.message);
 }

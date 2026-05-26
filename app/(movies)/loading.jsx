@@ -7,4 +7,4 @@ export default function Loading() {
       <p className="text-on-surface-variant text-sm">Loading...</p>
     </div>
   );
-}
+} 

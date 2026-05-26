@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
-import { HiPencilSquare } from "react-icons/hi2";
+import { Pencil } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useUpdateWatchedDate } from "@/_hooks/useUpdateWatchedDate";
 
 const MONTHS_SHORT = [
@@ -35,13 +37,13 @@ function formatDisplay(iso) {
   return `${MONTHS_SHORT[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
 
-const todayISO = (() => {
+function freshTodayISO() {
   const d = new Date();
   const y = d.getUTCFullYear();
   const m = String(d.getUTCMonth() + 1).padStart(2, "0");
   const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
-})();
+}
 
 export default function EditWatchedDate({ imdbID, watchedAt, compact = false }) {
   const [editing, setEditing] = useState(false);
@@ -59,50 +61,50 @@ export default function EditWatchedDate({ imdbID, watchedAt, compact = false }) 
     clearError();
   }
 
+  function handleEnterEdit() {
+    setValue(toInputDate(watchedAt));
+    setEditing(true);
+  }
+
   if (!editing) {
     return (
       <button
         type="button"
-        onClick={() => setEditing(true)}
-        className={`inline-flex items-center gap-1.5 bg-transparent border-none cursor-pointer text-on-surface-variant hover:text-on-surface ${
+        onClick={handleEnterEdit}
+        className={`inline-flex items-center gap-1.5 bg-transparent border-0 p-0 cursor-pointer text-muted-foreground hover:text-foreground font-mono ${
           compact ? "text-xs" : "text-sm"
         }`}
       >
-        <span>Watched {formatDisplay(watchedAt)}</span>
-        <HiPencilSquare className="text-[0.95em] opacity-70" />
+        <span>{formatDisplay(watchedAt)}</span>
+        <Pencil className="size-3 opacity-70" />
       </button>
     );
   }
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <div className="flex items-center gap-2">
-        <input
+      <div className="flex items-center gap-2 flex-wrap">
+        <Input
           type="date"
           value={value}
-          max={todayISO}
+          max={freshTodayISO()}
           onChange={(e) => setValue(e.target.value)}
           disabled={isPending}
-          className="bg-surface-low text-on-surface text-sm rounded-lg px-3 py-2 border border-outline-variant/40 outline-none focus:border-primary disabled:opacity-50"
+          className="h-9 w-auto flex-1 min-w-[150px]"
         />
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isPending}
-          className="bg-primary text-on-primary text-xs font-semibold py-2 px-3 rounded-lg cursor-pointer disabled:opacity-50"
-        >
+        <Button onClick={handleSave} disabled={isPending} size="sm">
           {isPending ? "Saving…" : "Save"}
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="ghost"
           onClick={handleCancel}
           disabled={isPending}
-          className="text-on-surface-variant hover:text-on-surface text-xs bg-transparent border-none cursor-pointer disabled:opacity-50"
+          size="sm"
         >
           Cancel
-        </button>
+        </Button>
       </div>
-      {error && <p className="text-error text-xs">{error}</p>}
+      {error && <p className="text-destructive text-xs">{error}</p>}
     </div>
   );
 }

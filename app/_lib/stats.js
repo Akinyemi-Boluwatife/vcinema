@@ -1,8 +1,10 @@
 "use server";
 import { createServerSupabase } from "./supabase";
-import { getMovieDetails } from "./actions";
+import { getMovieDetails } from "./omdb";
+import { generateTasteBlurb } from "./deepseek";
 
 const BACKFILL_CONCURRENCY = 5;
+const BACKFILL_RETRY_MS = 60 * 60 * 1000;
 
 function splitOmdbList(value) {
   if (!value || typeof value !== "string" || value === "N/A") return [];
@@ -31,16 +33,19 @@ function rowToWatched(row) {
 async function runWithConcurrency(items, limit, worker) {
   const results = [];
   let i = 0;
-  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (i < items.length) {
-      const idx = i++;
-      try {
-        results[idx] = await worker(items[idx], idx);
-      } catch {
-        results[idx] = null;
+  const runners = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (i < items.length) {
+        const idx = i++;
+        try {
+          results[idx] = await worker(items[idx], idx);
+        } catch {
+          results[idx] = null;
+        }
       }
-    }
-  });
+    },
+  );
   await Promise.all(runners);
   return results;
 }
@@ -61,31 +66,46 @@ export async function getWatchedWithMetadata() {
   const rows = data ?? [];
   if (!rows.length) return [];
 
-  const missing = rows.filter(
-    (r) =>
+  const retryAfter = Date.now() - BACKFILL_RETRY_MS;
+  const missing = rows.filter((r) => {
+    const lacksMetadata =
       !r.genres ||
       r.genres.length === 0 ||
       !r.director ||
       !r.actors ||
-      r.actors.length === 0
-  );
+      r.actors.length === 0;
+    if (!lacksMetadata) return false;
+    const lastAttempt = r.metadata_backfill_attempted_at
+      ? new Date(r.metadata_backfill_attempted_at).getTime()
+      : 0;
+    return lastAttempt < retryAfter;
+  });
 
   if (missing.length) {
     await runWithConcurrency(missing, BACKFILL_CONCURRENCY, async (row) => {
+      const attemptedAt = new Date().toISOString();
       const details = await getMovieDetails(row.imdb_id).catch(() => null);
-      if (!details) return;
-      const genres = splitOmdbList(details.Genre);
-      const actors = splitOmdbList(details.Actors);
-      const director =
-        details.Director && details.Director !== "N/A" ? details.Director : null;
+      const patch = { metadata_backfill_attempted_at: attemptedAt };
 
-      row.genres = genres;
-      row.director = director;
-      row.actors = actors;
+      if (details) {
+        const genres = splitOmdbList(details.Genre);
+        const actors = splitOmdbList(details.Actors);
+        const director =
+          details.Director && details.Director !== "N/A"
+            ? details.Director
+            : null;
+
+        row.genres = genres;
+        row.director = director;
+        row.actors = actors;
+        patch.genres = genres;
+        patch.director = director;
+        patch.actors = actors;
+      }
 
       await supabase
         .from("watched_movies")
-        .update({ genres, director, actors })
+        .update(patch)
         .eq("user_id", user.id)
         .eq("imdb_id", row.imdb_id);
     });
@@ -107,7 +127,9 @@ function lastNMonths(n) {
   const out = [];
   const now = new Date();
   for (let i = n - 1; i >= 0; i--) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const d = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1),
+    );
     const y = d.getUTCFullYear();
     const m = String(d.getUTCMonth() + 1).padStart(2, "0");
     out.push(`${y}-${m}`);
@@ -121,7 +143,7 @@ function topN(map, n) {
     .slice(0, n);
 }
 
-export async function aggregateStats(rows) {
+export async function aggregateStats(rows, userId = null) {
   if (!rows.length) return null;
 
   const totalFilms = rows.length;
@@ -135,9 +157,7 @@ export async function aggregateStats(rows) {
   const directorCounts = new Map();
   for (const r of rows) {
     if (!r.director) continue;
-    for (const d of splitOmdbList(r.director)) {
-      directorCounts.set(d, (directorCounts.get(d) || 0) + 1);
-    }
+    directorCounts.set(r.director, (directorCounts.get(r.director) || 0) + 1);
   }
   const distinctDirectors = directorCounts.size;
 
@@ -213,7 +233,12 @@ export async function aggregateStats(rows) {
     const decade = Math.floor(r.year / 10) * 10;
     for (const g of r.genres || []) {
       const key = `${decade}|${g}`;
-      const cur = decadeGenreAccum.get(key) || { sum: 0, count: 0, decade, genre: g };
+      const cur = decadeGenreAccum.get(key) || {
+        sum: 0,
+        count: 0,
+        decade,
+        genre: g,
+      };
       cur.sum += r.userRating;
       cur.count += 1;
       decadeGenreAccum.set(key, cur);
@@ -224,15 +249,63 @@ export async function aggregateStats(rows) {
     .map((v) => ({ ...v, avg: v.sum / v.count }))
     .sort((a, b) => b.avg - a.avg);
   const top = tasteCandidates[0];
-  const tasteProfile = top
-    ? {
-        blurb: `You love ${top.decade % 100}s ${top.genre.toLowerCase()}.`,
-        decade: top.decade,
-        genre: top.genre,
-        avg: top.avg,
-        count: top.count,
+
+  // Fingerprint captures the inputs that actually drive the blurb:
+  // top decade/genre, top-3 genres, top-3 directors, avg rating (±0.5 granularity).
+  // The blurb is only regenerated when this string changes.
+  const fingerprint = [
+    top?.decade ?? "x",
+    top?.genre ?? "x",
+    topGenres.slice(0, 3).join(","),
+    topDirectors
+      .slice(0, 3)
+      .map((d) => d.name)
+      .join(","),
+    Math.round(avgUserRating * 2) / 2,
+  ].join("|");
+
+  let blurb = top
+    ? `A lover of ${top.decade}s ${top.genre.toLowerCase()}.`
+    : "Eclectic — keep rating to see your profile take shape.";
+
+  if (userId) {
+    const supabase = await createServerSupabase();
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("taste_blurb, taste_blurb_fingerprint")
+      .eq("id", userId)
+      .single();
+
+    if (prof?.taste_blurb && prof.taste_blurb_fingerprint === fingerprint) {
+      blurb = prof.taste_blurb;
+    } else {
+      const generated = await generateTasteBlurb({
+        rows,
+        topGenres,
+        topDirectors,
+        avgRating: avgUserRating,
+        top,
+      });
+      if (generated) {
+        blurb = generated;
+        await supabase
+          .from("profiles")
+          .update({
+            taste_blurb: generated,
+            taste_blurb_fingerprint: fingerprint,
+          })
+          .eq("id", userId);
       }
-    : { blurb: "Your taste is eclectic — keep rating to refine.", decade: null, genre: null };
+    }
+  }
+
+  const tasteProfile = {
+    blurb,
+    decade: top?.decade ?? null,
+    genre: top?.genre ?? null,
+    avg: top?.avg,
+    count: top?.count,
+  };
 
   return {
     kpis: {

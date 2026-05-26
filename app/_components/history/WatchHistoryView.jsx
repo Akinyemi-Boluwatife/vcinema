@@ -1,12 +1,15 @@
 import { getWatchHistory, getWatchedYears } from "@/_lib/watchedMovies";
 import { aggregateHistory } from "@/_lib/history";
-import HeatmapCalendar from "./HeatmapCalendar";
 import HistoryTimeline from "./HistoryTimeline";
 import HistoryKpis from "./HistoryKpis";
-import YearSelector from "./YearSelector";
+import HeatmapCalendar from "./HeatmapCalendar";
+import Pagination from "@/_components/shared/Pagination";
 import MonthlyWatchChart from "@/_components/stats/MonthlyWatchChart";
+import { Card, CardContent } from "@/components/ui/card";
 
-export default async function WatchHistoryView({ year }) {
+const PER_PAGE = 10;
+
+export default async function WatchHistoryView({ year, page = 1 }) {
   const currentYear = new Date().getUTCFullYear();
   const [years, allWatched] = await Promise.all([
     getWatchedYears(),
@@ -21,26 +24,30 @@ export default async function WatchHistoryView({ year }) {
     if (!m.watchedAt) return false;
     return new Date(m.watchedAt).getUTCFullYear() === resolvedYear;
   });
-  const timelineMovies = yearMovies.slice(0, 20);
 
-  const byDayObj = Object.fromEntries(history.byDay);
+  const totalPages = Math.max(1, Math.ceil(yearMovies.length / PER_PAGE));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const start = (safePage - 1) * PER_PAGE;
+  const timelineMovies = yearMovies.slice(start, start + PER_PAGE);
 
   if (!years.length) {
     return (
-      <div className="bg-surface-high rounded-lg border border-outline-variant/30 p-8 text-center">
-        <p className="text-on-surface text-base font-semibold mb-1">
-          No watch history yet
-        </p>
-        <p className="text-on-surface-variant text-sm">
-          Mark a movie as Watched to start building your history.
-        </p>
-      </div>
+      <Card className="text-center py-12">
+        <CardContent>
+          <p className="text-base font-medium text-foreground mb-1">
+            No watch history yet
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Mark a movie as Watched to start building your history.
+          </p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <YearSelector years={years} active={resolvedYear} />
+
 
       <HistoryKpis
         total={history.total}
@@ -49,28 +56,41 @@ export default async function WatchHistoryView({ year }) {
         streak={history.streak}
       />
 
-      <div className="bg-surface-high rounded-lg border border-outline-variant/30 p-4">
-        <h2 className="text-on-surface-variant text-xs font-semibold uppercase tracking-widest mb-3">
-          {resolvedYear} heatmap
-        </h2>
-        <HeatmapCalendar year={resolvedYear} byDay={byDayObj} />
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-base font-medium text-foreground mb-1">
+            By month
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            {resolvedYear}
+          </p>
+          <div style={{ height: 200 }}>
+            <MonthlyWatchChart data={history.byMonth} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="bg-surface-high rounded-lg border border-outline-variant/30 p-4">
-        <h2 className="text-on-surface-variant text-xs font-semibold uppercase tracking-widest mb-3">
-          By month
-        </h2>
-        <div style={{ height: 200 }}>
-          <MonthlyWatchChart data={history.byMonth} />
-        </div>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-base font-medium text-foreground mb-1">
+            Daily activity
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            {resolvedYear}
+          </p>
+          <HeatmapCalendar year={resolvedYear} byDay={history.byDay} />
+        </CardContent>
+      </Card>
 
       {history.total === 0 ? (
-        <p className="text-on-surface-variant text-sm text-center py-6">
+        <p className="text-muted-foreground text-sm text-center py-6">
           No movies watched in {resolvedYear} yet.
         </p>
       ) : (
-        <HistoryTimeline movies={timelineMovies} />
+        <>
+          <HistoryTimeline movies={timelineMovies} />
+          <Pagination total={yearMovies.length} perPage={PER_PAGE} />
+        </>
       )}
     </div>
   );

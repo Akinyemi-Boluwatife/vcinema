@@ -1,56 +1,70 @@
 "use client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/_components/ui/Button";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { deleteCollection } from "@/_lib/collections";
 
 export default function DeleteCollectionButton({ collectionId }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState(null);
 
   function handleDelete() {
+    setError(null);
     startTransition(async () => {
-      await deleteCollection(collectionId);
-      router.push("/lists");
+      try {
+        await deleteCollection(collectionId);
+        router.push("/lists");
+      } catch (e) {
+        setError(e.message || "Could not delete this collection.");
+      }
     });
   }
 
   if (!confirming) {
     return (
       <Button
-        variant="secondary"
+        variant="ghost"
         onClick={() => setConfirming(true)}
-        className="w-full rounded-xl py-2 text-sm !text-error !border-error/40 hover:!bg-error/10"
+        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
       >
+        <Trash2 className="size-4" />
         Delete collection
       </Button>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-on-surface-variant text-xs text-center">
-        Delete this collection and all its items? This cannot be undone.
-      </p>
-      <div className="flex gap-2">
-        <Button
-          variant="secondary"
-          onClick={handleDelete}
-          disabled={isPending}
-          className="flex-1 rounded-xl py-2 text-sm !text-error !border-error/40 hover:!bg-error/10"
-        >
-          {isPending ? "Deleting…" : "Yes, delete"}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => setConfirming(false)}
-          disabled={isPending}
-          className="rounded-xl py-2 text-sm px-4"
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
+    <Card className="border-destructive/40 bg-destructive/5">
+      <CardContent className="space-y-3">
+        <div>
+          <p className="text-base font-medium text-foreground mb-1">
+            Delete this collection?
+          </p>
+          <p className="text-sm text-muted-foreground">This can&apos;t be undone.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isPending}
+          >
+            <Trash2 className="size-4" />
+            {isPending ? "Deleting…" : "Yes, delete"}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => setConfirming(false)}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+        </div>
+        {error && <p className="text-destructive text-xs">{error}</p>}
+      </CardContent>
+    </Card>
   );
 }

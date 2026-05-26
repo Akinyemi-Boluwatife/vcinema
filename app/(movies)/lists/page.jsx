@@ -1,41 +1,30 @@
-import { listMyCollections } from "@/_lib/collections";
-import CollectionCard from "@/_components/collections/CollectionCard";
 import NewCollectionDialog from "@/_components/collections/NewCollectionDialog";
+import CollectionsSkeleton from "@/_components/collections/CollectionsSkeleton";
+import { Suspense } from "react";
+import { CollectionsWrapper } from "@/_components/collections/CollectionsWrapper";
 
 export const metadata = {
   title: "My Lists",
 };
 
-export default async function ListsPage() {
-  const collections = await listMyCollections();
-
+export default function ListsPage() {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <p className="text-on-surface-variant text-sm font-medium">Your collections</p>
-        {collections.length > 0 && (
-          <span className="bg-primary-container text-on-primary-container text-xs font-semibold px-2.5 py-1 rounded-full">
-            {collections.length}
-          </span>
-        )}
-      </div>
-
-      <NewCollectionDialog />
-
-      {collections.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-4">
-          <span className="text-5xl">🎞️</span>
-          <p className="text-on-surface-variant text-sm text-center px-6">
-            No collections yet. Make one to start curating — try "Top 10 of All Time" or "Horror Marathons".
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+      <header className="mb-8 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
+            Lists
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1.5">
+            Curate your own collections.
           </p>
         </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {collections.map((c) => (
-            <CollectionCard key={c.id} collection={c} />
-          ))}
-        </div>
-      )}
+        <NewCollectionDialog />
+      </header>
+
+      <Suspense fallback={<CollectionsSkeleton />}>
+        <CollectionsWrapper />
+      </Suspense >
     </div>
   );
 }

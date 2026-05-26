@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import Button from "@/_components/ui/Button";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function WatchedMoviesError({ error, reset }) {
   useEffect(() => {
@@ -9,24 +10,20 @@ export default function WatchedMoviesError({ error, reset }) {
   }, [error]);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <div className="bg-surface-high rounded-lg border border-outline-variant/30 p-8 text-center flex flex-col gap-4">
-        <h2 className="text-on-surface text-lg font-semibold">
-          We couldn't load your list
-        </h2>
-        <p className="text-on-surface-variant text-sm">
-          {error?.message ?? "Something went wrong on the server."}
-        </p>
-        <div className="flex justify-center">
-          <Button
-            variant="primary"
-            onClick={reset}
-            className="rounded-xl py-2 px-4 text-sm"
-          >
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+      <Card>
+        <CardContent className="text-center flex flex-col gap-4 items-center py-2">
+          <p className="text-base font-medium text-foreground">
+            We couldn&apos;t load your list
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {error?.message ?? "Something went wrong on the server."}
+          </p>
+          <Button onClick={reset} className="mt-2">
             Try again
           </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

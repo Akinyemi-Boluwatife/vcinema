@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import BottomNav from "@/_components/BottomNav";
+import BottomNav from "@/_components/layout/BottomNav";
 import { NavigationProvider } from "@/_contexts/NavigationContext";
 import { createServerSupabase } from "@/_lib/supabase";
-import Header from "../_components/Header";
+import Header from "@/_components/layout/Header";
 
 export default async function MoviesLayout({ children }) {
   const supabase = await createServerSupabase();
@@ -14,7 +14,7 @@ export default async function MoviesLayout({ children }) {
   return (
     <NavigationProvider>
       <Header />
-      <main className="pb-16 sm:pb-0">{children}</main>
+      <main className="pb-24 md:pb-0">{children}</main>
       <BottomNav />
     </NavigationProvider>
   );

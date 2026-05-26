@@ -1,7 +1,7 @@
-import { getMovieDetails } from "@/_lib/actions";
+import { getMovieDetails } from "@/_lib/omdb";
 import { getMovieEntry } from "@/_lib/watchedMovies";
 import MovieDetailClient from "./MovieDetailClient";
-import AddToList from "../../../_components/AddToList";
+import AddToList from "@/_components/movieDetails/AddToList";
 import AddToCollectionMenu from "@/_components/collections/AddToCollectionMenu";
 
 export const metadata = {

@@ -1,23 +1,41 @@
-"use client";
-
 import Link from "next/link";
+import { Search, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
-      <h1 className="text-8xl font-bold text-primary-container">404</h1>
-      <div className="h-1 w-16 rounded-full bg-primary-container my-5" />
-      <p className="text-2xl font-bold text-on-surface">Page Not Found</p>
-      <p className="text-sm mt-3 text-on-surface-variant max-w-sm">
-        The page you are looking for might have been removed or is temporarily
-        unavailable.
-      </p>
-      <Link
-        href="/searchMovies"
-        className="mt-8 px-6 py-2.5 bg-primary-container text-on-primary-container text-sm font-semibold rounded no-underline hover:bg-primary-dim transition-colors duration-200"
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center bg-background">
+      <p
+        className="font-display text-foreground mb-6"
+        style={{
+          fontSize: "clamp(120px, 22vw, 240px)",
+          lineHeight: 1,
+          letterSpacing: "-0.04em",
+        }}
       >
-        Go to Search
-      </Link>
+        404
+      </p>
+      <p className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+        This page didn&apos;t make the cut.
+      </p>
+      <p className="text-sm text-muted-foreground max-w-md mb-8">
+        The film, list, or page you&apos;re looking for doesn&apos;t exist — or it&apos;s
+        been pulled from the reel.
+      </p>
+      <div className="flex gap-3 flex-wrap justify-center">
+        <Button asChild>
+          <Link href="/searchMovies">
+            <Search className="size-4" />
+            Find a film
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/">
+            <ArrowLeft className="size-4" />
+            Go home
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,19 @@
 "use client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/_components/ui/Button";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { createCollection } from "@/_lib/collections";
 
 export default function NewCollectionDialog() {
@@ -18,7 +30,8 @@ export default function NewCollectionDialog() {
     setError("");
   }
 
-  function handleSubmit() {
+  function handleSubmit(e) {
+    e?.preventDefault?.();
     if (!title.trim()) {
       setError("Title is required");
       return;
@@ -29,67 +42,82 @@ export default function NewCollectionDialog() {
         setOpen(false);
         reset();
         router.push(`/lists/${id}`);
-      } catch (e) {
-        setError(e.message || "Could not create");
+      } catch (err) {
+        setError(err.message || "Could not create");
       }
     });
   }
 
-  if (!open) {
-    return (
-      <Button
-        variant="primary"
-        onClick={() => setOpen(true)}
-        className="w-full rounded-xl py-3 text-sm"
-      >
-        + New collection
-      </Button>
-    );
-  }
-
   return (
-    <div className="bg-surface-high rounded-xl border border-outline-variant/30 p-4 flex flex-col gap-3">
-      <p className="text-on-surface text-sm font-semibold">New collection</p>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="e.g. Top 10 of All Time"
-        maxLength={120}
-        disabled={isPending}
-        className="bg-surface-low text-on-surface text-sm rounded-lg px-3 py-2 border border-outline-variant/40 outline-none focus:border-primary"
-      />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Optional description"
-        maxLength={500}
-        rows={2}
-        disabled={isPending}
-        className="bg-surface-low text-on-surface text-sm rounded-lg px-3 py-2 border border-outline-variant/40 outline-none focus:border-primary resize-none"
-      />
-      {error && <p className="text-error text-xs">{error}</p>}
-      <div className="flex gap-2">
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={isPending}
-          className="flex-1 rounded-xl py-2 text-sm"
-        >
-          {isPending ? "Creating…" : "Create"}
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) reset();
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="size-4" /> New collection
         </Button>
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setOpen(false);
-            reset();
-          }}
-          disabled={isPending}
-          className="rounded-xl py-2 text-sm px-4"
-        >
-          Cancel
-        </Button>
-      </div>
-    </div>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>New collection</DialogTitle>
+          <DialogDescription>
+            Give your collection a title and an optional description.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="title" className="text-xs text-muted-foreground">
+              Title
+            </Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Top 10 of All Time"
+              maxLength={120}
+              disabled={isPending}
+              autoFocus
+              className="h-10"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="description"
+              className="text-xs text-muted-foreground"
+            >
+              Description
+            </Label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional"
+              maxLength={500}
+              rows={2}
+              disabled={isPending}
+              className="w-full bg-transparent border border-input rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-all resize-none"
+            />
+          </div>
+          {error && <p className="text-destructive text-xs">{error}</p>}
+          <DialogFooter className="gap-2 pt-2">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Creating…" : "Create"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

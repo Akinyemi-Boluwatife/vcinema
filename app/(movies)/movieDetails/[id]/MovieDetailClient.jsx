@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Badge from "@/_components/ui/Badge";
+import { ArrowLeft, Star } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function MovieDetailClient({ movie }) {
   const router = useRouter();
@@ -23,78 +25,83 @@ export default function MovieDetailClient({ movie }) {
 
   return (
     <div className="pb-8">
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-1 text-on-surface-variant hover:text-on-surface text-sm mb-5 transition-colors duration-200 cursor-pointer bg-transparent border-none p-0"
-      >
-        ← Back
-      </button>
-
-      <div className="flex gap-4 mb-6">
-        <div className="w-32 flex-shrink-0 sm:w-40">
-          {validPoster ? (
-            <img
-              src={validPoster}
-              alt={title}
-              className="w-full aspect-[2/3] object-cover rounded-lg"
-            />
-          ) : (
-            <div className="w-full aspect-[2/3] bg-surface-high rounded-lg flex items-center justify-center text-on-surface-variant text-xs text-center p-2">
-              No Poster
-            </div>
-          )}
+      <div className="detail-backdrop relative -mx-4 sm:-mx-6 mb-0">
+        {validPoster ? (
+          <img src={validPoster} alt="" aria-hidden />
+        ) : (
+          <div className="absolute inset-0 bg-card" />
+        )}
+        <div className="absolute top-6 left-4 sm:left-6 z-10">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 backdrop-blur-md bg-background/60"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="size-3.5" />
+            Back
+          </Button>
         </div>
-        <div className="flex flex-col gap-2 flex-1 min-w-0 py-1">
-          <h1 className="font-bold text-on-surface text-xl leading-tight">
+      </div>
+
+      <div className="relative -mt-40 sm:-mt-48 z-10 flex flex-col sm:flex-row gap-5 sm:gap-8 items-start">
+        <div className="w-40 sm:w-52 flex-shrink-0">
+          <div className="poster shadow-2xl">
+            {validPoster ? (
+              <img src={validPoster} alt={title} />
+            ) : (
+              <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs text-center p-2">
+                No Poster
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-3 flex-1 min-w-0 sm:pt-12">
+          <p className="text-micro">
+            {year}
+            {runtime && runtime !== "N/A" ? ` · ${runtime}` : ""}
+            {director && director !== "N/A" ? ` · Directed by ${director}` : ""}
+          </p>
+          <h1
+            className="font-display text-foreground"
+            style={{
+              fontSize: "clamp(36px, 5vw, 60px)",
+              lineHeight: 1.05,
+            }}
+          >
             {title}
           </h1>
-          <p className="text-on-surface-variant text-sm">
-            {year} · {runtime}
-          </p>
           <div className="flex flex-wrap gap-1.5">
             {genres.map((g) => (
-              <Badge key={g} variant="default">
+              <Badge key={g} variant="outline" className="text-xs">
                 {g}
               </Badge>
             ))}
           </div>
-          <div className="flex items-center gap-1.5 mt-auto">
-            <span className="text-yellow-400 text-sm">⭐</span>
-            <span className="font-bold text-on-surface text-sm">
-              {imdbRating}
-            </span>
-            <span className="text-on-surface-variant text-xs">IMDB</span>
-          </div>
+          {imdbRating && imdbRating !== "N/A" && (
+            <div className="flex items-center gap-2 mt-1">
+              <Star className="text-primary size-4 fill-primary" />
+              <span className="font-medium text-foreground text-sm">
+                {imdbRating}
+              </span>
+              <span className="text-muted-foreground text-xs">IMDb</span>
+            </div>
+          )}
         </div>
       </div>
 
       {plot && plot !== "N/A" && (
-        <div className="mb-6">
-          <h2 className="text-on-surface-variant text-xs font-semibold uppercase tracking-widest mb-2">
-            Plot
-          </h2>
-          <p className="text-on-surface text-sm leading-relaxed">{plot}</p>
-        </div>
+        <p className="text-muted-foreground text-base leading-relaxed mt-6 max-w-2xl">
+          {plot}
+        </p>
       )}
 
-      <div className="mb-6 flex flex-col gap-3">
-        {director && director !== "N/A" && (
-          <div>
-            <p className="text-on-surface-variant text-xs font-semibold uppercase tracking-widest">
-              Director
-            </p>
-            <p className="text-on-surface text-sm mt-1">{director}</p>
-          </div>
-        )}
-        {actors && actors !== "N/A" && (
-          <div>
-            <p className="text-on-surface-variant text-xs font-semibold uppercase tracking-widest">
-              Cast
-            </p>
-            <p className="text-on-surface text-sm mt-1">{actors}</p>
-          </div>
-        )}
-      </div>
+      {actors && actors !== "N/A" && (
+        <p className="text-sm text-muted-foreground mt-4">
+          <span className="text-foreground/70 font-medium">Cast: </span>
+          {actors}
+        </p>
+      )}
     </div>
   );
 }

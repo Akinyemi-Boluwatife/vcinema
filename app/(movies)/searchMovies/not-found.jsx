@@ -1,19 +1,17 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-function NotFound() {
+export default function NotFound() {
   return (
-    <main className="text-center space-y-6 mt-4">
-      <h1 className="text-3xl font-semibold">
-        This page could not be found :(
-      </h1>
-      <Link
-        href="/searchMovies"
-        className="inline-block bg-accent-500 text-primary-800 px-6 py-3 text-lg"
-      >
-        Go back home
-      </Link>
+    <main className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6 gap-4">
+      <Search className="size-8 text-muted-foreground" aria-hidden />
+      <p className="text-xl md:text-2xl font-semibold text-foreground">
+        This page could not be found.
+      </p>
+      <Button asChild>
+        <Link href="/searchMovies">Back to search</Link>
+      </Button>
     </main>
   );
 }
-
-export default NotFound;

@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 function formatDate(dateStr) {
   if (!dateStr) return "—";
   return new Date(`${dateStr}T00:00:00.000Z`).toLocaleDateString("en-US", {
@@ -9,32 +11,45 @@ function formatDate(dateStr) {
 
 export default function HistoryKpis({ total, bestMonth, bestDay, streak }) {
   const items = [
-    { label: "Films", value: total },
+    { label: "Films", value: String(total), delta: null },
     {
-      label: "Best Month",
-      value: bestMonth ? `${bestMonth.label} (${bestMonth.count})` : "—",
+      label: "Best month",
+      value: bestMonth ? String(bestMonth.count) : "—",
+      delta: bestMonth ? bestMonth.label : null,
     },
     {
-      label: "Best Day",
-      value: bestDay ? `${formatDate(bestDay.date)} (${bestDay.count})` : "—",
+      label: "Best day",
+      value: bestDay ? String(bestDay.count) : "—",
+      delta: bestDay ? formatDate(bestDay.date) : null,
     },
-    { label: "Streak", value: streak ? `${streak} day${streak === 1 ? "" : "s"}` : "—" },
+    {
+      label: "Streak",
+      value: streak ? String(streak) : "—",
+      delta: streak ? (streak === 1 ? "day" : "days") : null,
+    },
   ];
 
   return (
-    <div className="flex gap-3 p-4 mb-4 bg-surface-high rounded-lg border border-outline-variant/30 overflow-x-auto">
-      {items.map((it, i) => (
-        <div key={it.label} className="flex flex-1 items-stretch min-w-[110px]">
-          <div className="text-center flex-1">
-            <p className="text-primary text-lg font-bold whitespace-nowrap">
-              {it.value}
-            </p>
-            <p className="text-on-surface-variant text-[10px] uppercase tracking-widest mt-0.5">
-              {it.label}
-            </p>
-          </div>
-          {i < items.length - 1 && <div className="w-px bg-outline-variant/40 ml-3" />}
-        </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+      {items.map((it) => (
+        <Card key={it.label} size="sm">
+          <CardContent>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-micro">{it.label}</span>
+              <span
+                className="text-foreground font-semibold leading-none"
+                style={{ fontSize: 28, letterSpacing: "-0.02em" }}
+              >
+                {it.value}
+              </span>
+              {it.delta && (
+                <span className="text-xs text-muted-foreground">
+                  {it.delta}
+                </span>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

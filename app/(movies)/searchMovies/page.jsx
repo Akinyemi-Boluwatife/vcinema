@@ -1,20 +1,25 @@
-import SearchedMovies from "@/_components/SearchedMovies";
-import { searchMovies } from "@/_lib/actions";
-import { getMovieStatuses } from "@/_lib/watchedMovies";
+import { Suspense } from "react";
+import SearchedMovies from "@/_components/searchMovies/SearchedMovies";
+import SearchMoviesSkeleton from "@/_components/searchMovies/SearchMoviesSkeleton";
 
 export default async function SearchMoviesPage({ searchParams }) {
   const { q } = await searchParams;
   const query = q || "";
 
-  let movies = [];
-  let statusMap = {};
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
+      <header className="mb-8">
+        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
+          Search
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1.5">
+          Find a film by title.
+        </p>
+      </header>
 
-  if (query.length >= 3) {
-    movies = await searchMovies(query);
-    if (movies.length) {
-      statusMap = await getMovieStatuses(movies.map((m) => m.imdbID));
-    }
-  }
-
-  return <SearchedMovies query={query} movies={movies} statusMap={statusMap} />;
+      <Suspense fallback={<SearchMoviesSkeleton />}>
+        <SearchedMovies key={query} query={query} />
+      </Suspense>
+    </div>
+  );
 }

@@ -47,11 +47,11 @@ function levelFor(count) {
 }
 
 const LEVEL_FILL = {
-  0: colors.surfaceContainerHigh,
-  1: "#5e1a3a",
-  2: "#8d0052",
-  3: "#c8035c",
-  4: colors.primary,
+  0: "rgba(255,255,255,0.04)",
+  1: "rgba(225,29,46,0.20)",
+  2: "rgba(225,29,46,0.40)",
+  3: "rgba(225,29,46,0.65)",
+  4: "rgba(225,29,46,0.95)",
 };
 
 const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -130,7 +130,7 @@ export default function HeatmapCalendar({ year, byDay }) {
             key={`m-${m.x}`}
             x={LEFT_LABEL_WIDTH + m.x}
             y={11}
-            fill={colors.onSurfaceVariant}
+            fill="var(--fg-3)"
             fontSize="10"
             fontFamily="inherit"
           >
@@ -147,7 +147,7 @@ export default function HeatmapCalendar({ year, byDay }) {
             key={r.label}
             x={0}
             y={TOP_LABEL_HEIGHT + r.row * STEP + 9}
-            fill={colors.onSurfaceVariant}
+            fill="var(--fg-3)"
             fontSize="9"
             fontFamily="inherit"
           >
@@ -166,8 +166,7 @@ export default function HeatmapCalendar({ year, byDay }) {
               rx={2}
               ry={2}
               fill={LEVEL_FILL[c.level]}
-              stroke={c.level === 0 ? colors.outlineVariant : "none"}
-              strokeOpacity={0.25}
+              stroke={c.level === 0 ? "rgba(255,255,255,0.05)" : "none"}
               onMouseEnter={() => setHover(c)}
               onMouseLeave={() => setHover(null)}
               onClick={() => setHover((prev) => (prev?.key === c.key ? null : c))}
@@ -187,21 +186,21 @@ export default function HeatmapCalendar({ year, byDay }) {
       {hover && hover.count > 0 && (
         <div className="absolute top-0 left-0 pointer-events-none">
           <div
-            className="bg-surface-container-high border border-outline-variant/40 rounded-lg px-3 py-2 text-xs text-on-surface shadow-lg max-w-xs"
+            className="bg-popover border border-border rounded-md px-3 py-2 text-xs text-foreground shadow-lg max-w-xs"
             style={{
               position: "absolute",
               left: Math.min(LEFT_LABEL_WIDTH + hover.x, width - 200),
               top: TOP_LABEL_HEIGHT + hover.y + STEP + 6,
             }}
           >
-            <p className="font-semibold text-on-surface mb-0.5">
+            <p className="font-medium text-foreground mb-0.5">
               {formatLong(hover.date)}
             </p>
-            <p className="text-on-surface-variant">
+            <p className="text-muted-foreground">
               {hover.count} {hover.count === 1 ? "movie" : "movies"}
             </p>
             {hover.titles.length > 0 && (
-              <p className="text-on-surface mt-1 leading-snug">
+              <p className="text-foreground mt-1 leading-snug">
                 {hover.titles.slice(0, 4).join(", ")}
                 {hover.titles.length > 4 ? ` +${hover.titles.length - 4} more` : ""}
               </p>
@@ -210,7 +209,7 @@ export default function HeatmapCalendar({ year, byDay }) {
         </div>
       )}
 
-      <div className="flex items-center gap-1.5 mt-3 text-xs text-on-surface-variant">
+      <div className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground">
         <span>Less</span>
         {[0, 1, 2, 3, 4].map((lvl) => (
           <span
@@ -220,7 +219,7 @@ export default function HeatmapCalendar({ year, byDay }) {
               width: 12,
               height: 12,
               background: LEVEL_FILL[lvl],
-              border: lvl === 0 ? `1px solid ${colors.outlineVariant}` : "none",
+              border: lvl === 0 ? "1px solid rgba(255,255,255,0.05)" : "none",
             }}
           />
         ))}

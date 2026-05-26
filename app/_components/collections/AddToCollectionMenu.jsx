@@ -1,8 +1,15 @@
 "use client";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/_components/ui/Button";
-import { listMyCollections, createCollection, addItem } from "@/_lib/collections";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  listMyCollections,
+  createCollection,
+  addItem,
+} from "@/_lib/collections";
 
 export default function AddToCollectionMenu({ movie, movieId }) {
   const router = useRouter();
@@ -32,8 +39,12 @@ export default function AddToCollectionMenu({ movie, movieId }) {
   function handleAdd(collectionId, collectionTitle) {
     startTransition(async () => {
       try {
-        await addItem(collectionId, snapshot());
-        setStatus(`Added to "${collectionTitle}"`);
+        const result = await addItem(collectionId, snapshot());
+        setStatus(
+          result?.added
+            ? `Added to "${collectionTitle}"`
+            : `Already in "${collectionTitle}"`
+        );
         setTimeout(() => setStatus(""), 2000);
         setOpen(false);
         router.refresh();
@@ -64,105 +75,104 @@ export default function AddToCollectionMenu({ movie, movieId }) {
   }
 
   return (
-    <div className="bg-surface-low rounded-xl border border-outline-variant/30 p-4 mt-4 flex flex-col gap-3">
-      <h2 className="text-on-surface-variant text-xs font-semibold uppercase tracking-widest text-center">
-        Add to a collection
-      </h2>
+    <Card className="mt-4 max-w-2xl">
+      <CardContent className="space-y-3">
+        <div className="text-micro">Add to a collection</div>
 
-      {!open ? (
-        <Button
-          variant="secondary"
-          onClick={handleOpen}
-          className="w-full rounded-xl py-3 text-sm"
-        >
-          + Add to collection
-        </Button>
-      ) : (
-        <>
-          {collections === null ? (
-            <p className="text-on-surface-variant text-xs text-center py-2">Loading…</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {collections.length === 0 && !creating && (
-                <p className="text-on-surface-variant text-xs text-center py-2">
-                  You don't have any collections yet.
-                </p>
-              )}
-              {collections.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => handleAdd(c.id, c.title)}
-                  disabled={isPending}
-                  className="flex items-center justify-between text-left bg-surface-high hover:bg-surface-variant rounded-lg px-3 py-2 border border-outline-variant/30 cursor-pointer disabled:opacity-50"
-                >
-                  <span className="text-on-surface text-sm truncate">{c.title}</span>
-                  <span className="text-on-surface-variant text-xs ml-2 shrink-0">
-                    {c.itemCount} films
-                  </span>
-                </button>
-              ))}
-
-              {creating ? (
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="text"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="New collection title"
-                    maxLength={120}
+        {!open ? (
+          <Button variant="outline" onClick={handleOpen} className="h-10">
+            <Plus className="size-4" /> Add to collection
+          </Button>
+        ) : (
+          <>
+            {collections === null ? (
+              <p className="text-muted-foreground text-xs text-center py-2">
+                Loading…
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {collections.length === 0 && !creating && (
+                  <p className="text-muted-foreground text-xs text-center py-2">
+                    You don&apos;t have any collections yet.
+                  </p>
+                )}
+                {collections.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => handleAdd(c.id, c.title)}
                     disabled={isPending}
-                    className="bg-surface-low text-on-surface text-sm rounded-lg px-3 py-2 border border-outline-variant/40 outline-none focus:border-primary"
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      variant="primary"
-                      onClick={handleCreateAndAdd}
-                      disabled={isPending || !newTitle.trim()}
-                      className="flex-1 rounded-xl py-2 text-sm"
-                    >
-                      {isPending ? "Saving…" : "Create & add"}
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => {
-                        setCreating(false);
-                        setNewTitle("");
-                      }}
+                    className="flex items-center justify-between text-left bg-muted/40 hover:bg-muted rounded-md px-3 py-2 border border-border cursor-pointer disabled:opacity-50 transition-colors"
+                  >
+                    <span className="text-foreground text-sm truncate">
+                      {c.title}
+                    </span>
+                    <span className="text-muted-foreground text-xs ml-2 shrink-0">
+                      {c.itemCount} films
+                    </span>
+                  </button>
+                ))}
+
+                {creating ? (
+                  <div className="flex flex-col gap-2">
+                    <Input
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      placeholder="New collection title"
+                      maxLength={120}
                       disabled={isPending}
-                      className="rounded-xl py-2 px-4 text-sm"
-                    >
-                      Cancel
-                    </Button>
+                      className="h-10"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleCreateAndAdd}
+                        disabled={isPending || !newTitle.trim()}
+                        className="flex-1 h-9"
+                      >
+                        {isPending ? "Saving…" : "Create & add"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setCreating(false);
+                          setNewTitle("");
+                        }}
+                        disabled={isPending}
+                        className="h-9"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setCreating(true)}
-                  disabled={isPending}
-                  className="text-primary text-xs text-center bg-transparent border-none cursor-pointer hover:underline disabled:opacity-50"
-                >
-                  + New collection
-                </button>
-              )}
-            </div>
-          )}
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCreating(true)}
+                    disabled={isPending}
+                    className="self-start"
+                  >
+                    <Plus className="size-3" /> New collection
+                  </Button>
+                )}
+              </div>
+            )}
 
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            disabled={isPending}
-            className="text-on-surface-variant hover:text-on-surface text-xs text-center bg-transparent border-none cursor-pointer disabled:opacity-50"
-          >
-            Close
-          </button>
-        </>
-      )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+            >
+              Close
+            </Button>
+          </>
+        )}
 
-      {status && (
-        <p className="text-on-surface-variant text-xs text-center">{status}</p>
-      )}
-    </div>
+        {status && (
+          <p className="text-muted-foreground text-xs">{status}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }

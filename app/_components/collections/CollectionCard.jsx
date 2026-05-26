@@ -1,37 +1,54 @@
 import Link from "next/link";
+import { Globe, Film } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function CollectionCard({ collection }) {
-  const { id, title, description, itemCount, coverPoster, isPublic } = collection;
+  const { id, title, description, itemCount, coverPoster, isPublic } =
+    collection;
 
   return (
-    <Link
-      href={`/lists/${id}`}
-      className="flex gap-3 p-3 bg-surface-high rounded-lg border border-outline-variant/30 no-underline hover:bg-surface-variant transition-colors"
-    >
-      <div className="w-14 h-20 bg-surface-variant rounded overflow-hidden shrink-0 flex items-center justify-center">
-        {coverPoster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={coverPoster} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-2xl">🎞️</span>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-on-surface text-sm font-semibold truncate">{title}</p>
-          {isPublic && (
-            <span className="bg-primary-container text-on-primary-container text-[10px] font-semibold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
-              Public
-            </span>
+    <Link href={`/lists/${id}`} className="no-underline group">
+      <Card className="overflow-hidden hover:border-primary transition-colors h-full p-0">
+        <div className="h-32 bg-muted flex items-stretch overflow-hidden">
+          {coverPoster ? (
+            <img
+              src={coverPoster}
+              alt=""
+              className="w-full h-full object-cover"
+              style={{ filter: "saturate(0.85)" }}
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              <Film className="size-8" aria-hidden />
+            </div>
           )}
         </div>
-        {description && (
-          <p className="text-on-surface-variant text-xs line-clamp-2 mb-1">{description}</p>
-        )}
-        <p className="text-on-surface-variant text-xs">
-          {itemCount} {itemCount === 1 ? "film" : "films"}
-        </p>
-      </div>
+        <div className="p-4 space-y-1.5">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-foreground text-base font-medium truncate">
+              {title}
+            </p>
+            {isPublic && (
+              <Badge
+                variant="outline"
+                className="text-[10px] uppercase tracking-wider shrink-0"
+              >
+                <Globe className="size-2.5" /> Public
+              </Badge>
+            )}
+          </div>
+          {description && (
+            <p className="text-muted-foreground text-sm line-clamp-2">
+              {description}
+            </p>
+          )}
+          <p className="text-muted-foreground text-xs pt-1">
+            {itemCount} {itemCount === 1 ? "film" : "films"}
+          </p>
+        </div>
+      </Card>
     </Link>
   );
 }

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
 import { useSearchParams } from "next/navigation";
-import SortBy from "@/_components/SortBy";
-import SortOrder from "@/_components/SortOrder";
-import { TabsOptions } from "@/_components/TabsOptions";
+import SortBy from "@/_components/watchedMovies/SortBy";
+import SortOrder from "@/_components/watchedMovies/SortOrder";
+import { TabsOptions } from "@/_components/watchedMovies/TabsOptions";
 
 export default function TabBar() {
   const searchParams = useSearchParams();
@@ -14,7 +14,7 @@ export default function TabBar() {
       <TabsOptions />
 
       {activeTab !== "history" && (
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end sm:gap-2 mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-end gap-2 mb-6">
           <SortBy />
           <SortOrder />
         </div>
