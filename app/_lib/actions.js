@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { headers, cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "./supabase";
+import { auth } from "./auth";
 import { updateMyProfile, setMyAvatar, removeMyAvatar } from "./profiles";
 import { PW_RECOVERY_COOKIE } from "./auth-cookies";
 
@@ -16,6 +17,8 @@ function safeNext(value) {
 }
 
 export async function signInWithGoogle(formData) {
+  const { user } = await auth();
+  if (user) redirect("/searchMovies");
   const next = safeNext(formData?.get?.("next"));
   const supabase = await createServerSupabase();
   const origin = (await headers()).get("origin");
@@ -30,6 +33,8 @@ export async function signInWithGoogle(formData) {
 }
 
 export async function signInWithCredentials({ email, password, next }) {
+  const { user } = await auth();
+  if (user) redirect(safeNext(next));
   const supabase = await createServerSupabase();
   const { error } = await supabase.auth.signInWithPassword({
     email: email.trim().toLowerCase(),
@@ -40,6 +45,8 @@ export async function signInWithCredentials({ email, password, next }) {
 }
 
 export async function signUpWithCredentials({ name, email, password, next }) {
+  const { user } = await auth();
+  if (user) redirect(safeNext(next));
   if (!password || password.length < MIN_PASSWORD) {
     return { error: `Password must be at least ${MIN_PASSWORD} characters.` };
   }
@@ -58,12 +65,13 @@ export async function signUpWithCredentials({ name, email, password, next }) {
 }
 
 export async function signOutAction() {
-  const supabase = await createServerSupabase();
+  const [, supabase] = await Promise.all([auth(), createServerSupabase()]);
   await supabase.auth.signOut();
   redirect("/signin");
 }
 
 export async function requestPasswordReset({ email }) {
+  await auth();
   const supabase = await createServerSupabase();
   const origin = (await headers()).get("origin");
   await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
@@ -111,6 +119,8 @@ export async function setNewPassword({ password, currentPassword }) {
 }
 
 export async function updateProfileSettings(values) {
+  const { user } = await auth();
+  if (!user) return { error: "Not authenticated." };
   const result = await updateMyProfile(values);
   if (result?.error) return result;
   revalidatePath("/profile");
@@ -120,6 +130,8 @@ export async function updateProfileSettings(values) {
 }
 
 export async function setProfileImage(values) {
+  const { user } = await auth();
+  if (!user) return { error: "Not authenticated." };
   const result = await setMyAvatar(values);
   if (result?.error) return result;
   revalidatePath("/profile");
@@ -128,6 +140,8 @@ export async function setProfileImage(values) {
 }
 
 export async function removeProfileImage() {
+  const { user } = await auth();
+  if (!user) return { error: "Not authenticated." };
   const result = await removeMyAvatar();
   if (result?.error) return result;
   revalidatePath("/profile");

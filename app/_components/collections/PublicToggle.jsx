@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition, useEffect } from "react";
+import { useReducer, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Copy, Check, Link2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -7,48 +7,74 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { togglePublic } from "@/_lib/collections";
 
+function init({ initialPublic, initialSlug }) {
+  return {
+    isPublic: initialPublic,
+    slug: initialSlug,
+    copied: false,
+    error: null,
+    copyError: null,
+    origin: typeof window !== "undefined" ? window.location.origin : "",
+  };
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "TOGGLE_SUCCESS":
+      return { ...state, isPublic: action.isPublic, slug: action.slug, error: null };
+    case "TOGGLE_ERROR":
+      return { ...state, error: action.payload };
+    case "CLEAR_ERROR":
+      return { ...state, error: null };
+    case "COPIED":
+      return { ...state, copied: true, copyError: null };
+    case "CLEAR_COPIED":
+      return { ...state, copied: false };
+    case "COPY_ERROR":
+      return { ...state, copyError: action.payload };
+    default:
+      return state;
+  }
+}
+
 export default function PublicToggle({
   collectionId,
   initialPublic,
   initialSlug,
 }) {
-  const router = useRouter();
-  const [isPublic, setIsPublic] = useState(initialPublic);
-  const [slug, setSlug] = useState(initialSlug);
-  const [copied, setCopied] = useState(false);
+  const { refresh } = useRouter();
+  const [state, dispatch] = useReducer(reducer, { initialPublic, initialSlug }, init);
+  const { isPublic, slug, copied, error, copyError, origin } = state;
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState(null);
-  const [copyError, setCopyError] = useState(null);
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
 
   function handleToggle() {
-    setError(null);
+    dispatch({ type: "CLEAR_ERROR" });
     startTransition(async () => {
       try {
         const res = await togglePublic(collectionId);
-        setIsPublic(res.isPublic);
-        setSlug(res.publicSlug);
-        router.refresh();
+        dispatch({ type: "TOGGLE_SUCCESS", isPublic: res.isPublic, slug: res.publicSlug });
+        refresh();
       } catch (e) {
-        setError(e.message || "Could not change visibility. Please try again.");
+        dispatch({
+          type: "TOGGLE_ERROR",
+          payload: e.message || "Could not change visibility. Please try again.",
+        });
       }
     });
   }
 
   async function copyLink() {
     if (!slug || !origin) return;
-    setCopyError(null);
     const url = `${origin}/c/${slug}`;
     try {
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      dispatch({ type: "COPIED" });
+      setTimeout(() => dispatch({ type: "CLEAR_COPIED" }), 1500);
     } catch {
-      setCopyError("Couldn't copy. Long-press the link to copy manually.");
+      dispatch({
+        type: "COPY_ERROR",
+        payload: "Couldn't copy. Long-press the link to copy manually.",
+      });
     }
   }
 

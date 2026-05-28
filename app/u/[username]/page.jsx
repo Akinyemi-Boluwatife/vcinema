@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -253,14 +254,15 @@ function PublicCollectionLink({ collection }) {
   return (
     <Link href={`/c/${publicSlug}`} className="no-underline">
       <Card className="overflow-hidden hover:border-primary transition-colors h-full p-0">
-        <div className="h-24 bg-muted">
+        <div className="h-24 bg-muted relative">
           {coverPoster ? (
-            <img
+            <Image
               src={coverPoster}
               alt=""
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
               style={{ filter: "saturate(0.85)" }}
-              loading="lazy"
+              sizes="(max-width: 640px) 100vw, 50vw"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">

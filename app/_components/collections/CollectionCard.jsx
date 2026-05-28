@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Globe, Film } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -10,14 +11,15 @@ export default function CollectionCard({ collection }) {
   return (
     <Link href={`/lists/${id}`} className="no-underline group">
       <Card className="overflow-hidden hover:border-primary transition-colors h-full p-0">
-        <div className="h-32 bg-muted flex items-stretch overflow-hidden">
+        <div className="h-32 bg-muted flex items-stretch overflow-hidden relative">
           {coverPoster ? (
-            <img
+            <Image
               src={coverPoster}
               alt=""
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
               style={{ filter: "saturate(0.85)" }}
-              loading="lazy"
+              sizes="(max-width: 640px) 100vw, 33vw"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">

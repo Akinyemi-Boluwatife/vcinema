@@ -6,8 +6,7 @@ const sizes = {
 
 export default function Spinner({ size = "md" }) {
   return (
-    <div
-      role="status"
+    <output
       aria-label="Loading"
       className={`${sizes[size]} border-border border-t-primary rounded-full animate-spin`}
     />

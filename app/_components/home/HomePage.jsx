@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { getAuthContext } from "@/_lib/auth";
+import { auth } from "@/_lib/auth";
 import Logo from "@/_components/layout/Logo";
 import { Button } from "@/components/ui/button";
 
 export async function HomePage() {
-  const { user } = await getAuthContext();
+  const { user } = await auth();
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

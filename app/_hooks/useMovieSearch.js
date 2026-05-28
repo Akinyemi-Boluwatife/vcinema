@@ -1,21 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
 
-export function useMovieSearch() {
+export function useMovieSearch(initialQuery = "") {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { startNavigation } = useNavigation();
-  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
+  const [query, setQuery] = useState(initialQuery);
   const debounceRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, []);
 
   const handleQueryChange = useCallback(
     (nextQuery) => {

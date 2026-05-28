@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useTransition } from "react";
+import { createContext, use, useMemo, useTransition } from "react";
 
 const NavigationContext = createContext({
   isPending: false,
@@ -9,16 +9,18 @@ const NavigationContext = createContext({
 
 export function NavigationProvider({ children }) {
   const [isPending, startTransition] = useTransition();
+  const value = useMemo(
+    () => ({ isPending, startNavigation: startTransition }),
+    [isPending, startTransition],
+  );
 
   return (
-    <NavigationContext.Provider
-      value={{ isPending, startNavigation: startTransition }}
-    >
+    <NavigationContext.Provider value={value}>
       {children}
     </NavigationContext.Provider>
   );
 }
 
 export function useNavigation() {
-  return useContext(NavigationContext);
+  return use(NavigationContext);
 }

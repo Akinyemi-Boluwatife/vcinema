@@ -1,22 +1,13 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import PosterImage from "./PosterImage";
 
 const STATUS_LABEL = {
   watched: "Watched",
   want_to_watch: "Want",
   dropped: "Dropped",
 };
-
-function PosterPlaceholder({ className }) {
-  return (
-    <div
-      className={`flex items-center justify-center bg-muted text-muted-foreground text-xs text-center p-2 ${className}`}
-    >
-      No poster
-    </div>
-  );
-}
 
 function StatusOverlay({ status }) {
   if (!status || !STATUS_LABEL[status]) return null;
@@ -45,11 +36,7 @@ function SearchCard({ movie, status }) {
       className="no-underline group block"
     >
       <div className="poster">
-        {validPoster ? (
-          <img src={validPoster} alt={Title} loading="lazy" />
-        ) : (
-          <PosterPlaceholder className="w-full h-full" />
-        )}
+        <PosterImage src={validPoster} alt={Title} />
         <StatusOverlay status={status} />
       </div>
       <div className="mt-2 px-0.5">
@@ -96,11 +83,7 @@ function WatchedCard({ movie }) {
       >
         <div className="w-14 flex-shrink-0">
           <div className="poster rounded-sm">
-            {validPoster ? (
-              <img src={validPoster} alt={title} loading="lazy" />
-            ) : (
-              <PosterPlaceholder className="w-full h-full" />
-            )}
+            <PosterImage src={validPoster} alt={title} />
           </div>
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0 gap-1">

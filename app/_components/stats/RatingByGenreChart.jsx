@@ -8,9 +8,9 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   LabelList,
-} from "recharts";
+} from "./chart-primitives";
 
-const tickStyle = { fill: "var(--fg-2)", fontSize: 11 };
+const tickStyle = { fill: "var(--fg-2)", fontSize: 12 };
 
 export default function RatingByGenreChart({ data }) {
   if (!data || data.length === 0) {
@@ -67,7 +67,7 @@ export default function RatingByGenreChart({ data }) {
             dataKey="avg"
             position="right"
             formatter={(v) => Number(v).toFixed(1)}
-            style={{ fill: "var(--fg-2)", fontSize: 11 }}
+            style={{ fill: "var(--fg-2)", fontSize: 12 }}
           />
         </Bar>
       </BarChart>

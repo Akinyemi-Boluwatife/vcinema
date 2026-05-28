@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Globe } from "lucide-react";
@@ -99,7 +100,7 @@ export default async function PublicCollectionPage({ params }) {
               >
                 <div className="poster">
                   {item.poster && item.poster !== "N/A" ? (
-                    <img src={item.poster} alt={item.title} loading="lazy" />
+                    <Image src={item.poster} alt={item.title} width={300} height={450} />
                   ) : (
                     <div className="w-full h-full bg-muted" />
                   )}

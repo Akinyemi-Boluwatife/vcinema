@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { deleteCollection } from "@/_lib/collections";
 
 export default function DeleteCollectionButton({ collectionId }) {
-  const router = useRouter();
+  const { push } = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState(null);
@@ -17,7 +17,7 @@ export default function DeleteCollectionButton({ collectionId }) {
     startTransition(async () => {
       try {
         await deleteCollection(collectionId);
-        router.push("/lists");
+        push("/lists");
       } catch (e) {
         setError(e.message || "Could not delete this collection.");
       }

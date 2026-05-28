@@ -79,7 +79,7 @@ export function aggregateHistory(rows, year) {
   let streak = 0;
   let running = 0;
   let prev = null;
-  const sortedDays = [...byDay.keys()].sort();
+  const sortedDays = Array.from(byDay.keys()).toSorted();
   for (const key of sortedDays) {
     const d = new Date(`${key}T00:00:00.000Z`);
     if (prev && (d.getTime() - prev.getTime()) / 86400000 === 1) {

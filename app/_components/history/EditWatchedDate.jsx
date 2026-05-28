@@ -47,7 +47,7 @@ function freshTodayISO() {
 
 export default function EditWatchedDate({ imdbID, watchedAt, compact = false }) {
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(toInputDate(watchedAt));
+  const [value, setValue] = useState(() => toInputDate(watchedAt));
   const { save, isPending, error, clearError } = useUpdateWatchedDate(imdbID);
 
   async function handleSave() {

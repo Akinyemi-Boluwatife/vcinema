@@ -1,20 +1,23 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function Pagination({
+function PaginationInner({
   paramName = "page",
   total,
   perPage = 10,
 }) {
-  const router = useRouter();
+  const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const get = searchParams.get.bind(searchParams);
+
   const totalPages = Math.max(1, Math.ceil(total / perPage));
-  const raw = Number(searchParams.get(paramName));
+  const raw = Number(get(paramName));
   const page = Number.isInteger(raw) && raw >= 1 && raw <= totalPages ? raw : 1;
 
   if (totalPages <= 1) return null;
@@ -24,7 +27,7 @@ export default function Pagination({
     if (next <= 1) params.delete(paramName);
     else params.set(paramName, String(next));
     const qs = params.toString();
-    router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+    replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }
 
   const start = (page - 1) * perPage + 1;
@@ -63,4 +66,8 @@ export default function Pagination({
       </div>
     </nav>
   );
+}
+
+export default function Pagination(props) {
+  return <Suspense fallback={null}><PaginationInner {...props} /></Suspense>;
 }

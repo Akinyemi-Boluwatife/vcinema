@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useReducer, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,19 +11,49 @@ import {
   addItem,
 } from "@/_lib/collections";
 
+const INITIAL_STATE = {
+  open: false,
+  collections: null,
+  creating: false,
+  newTitle: "",
+  status: "",
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "OPEN":
+      return { ...state, open: true };
+    case "CLOSE":
+      return { ...state, open: false };
+    case "SET_COLLECTIONS":
+      return { ...state, collections: action.payload };
+    case "START_CREATING":
+      return { ...state, creating: true };
+    case "CANCEL_CREATING":
+      return { ...state, creating: false, newTitle: "" };
+    case "SET_NEW_TITLE":
+      return { ...state, newTitle: action.payload };
+    case "SET_STATUS":
+      return { ...state, status: action.payload };
+    case "RESET_AFTER_CREATE":
+      return { ...state, newTitle: "", creating: false, open: false, collections: null };
+    default:
+      return state;
+  }
+}
+
 export default function AddToCollectionMenu({ movie, movieId }) {
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [collections, setCollections] = useState(null);
-  const [creating, setCreating] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [status, setStatus] = useState("");
+  const { refresh } = useRouter();
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const { open, collections, creating, newTitle, status } = state;
   const [isPending, startTransition] = useTransition();
 
   function handleOpen() {
-    setOpen(true);
+    dispatch({ type: "OPEN" });
     if (collections === null) {
-      listMyCollections().then((list) => setCollections(list));
+      listMyCollections().then((list) =>
+        dispatch({ type: "SET_COLLECTIONS", payload: list }),
+      );
     }
   }
 
@@ -40,16 +70,17 @@ export default function AddToCollectionMenu({ movie, movieId }) {
     startTransition(async () => {
       try {
         const result = await addItem(collectionId, snapshot());
-        setStatus(
-          result?.added
+        dispatch({
+          type: "SET_STATUS",
+          payload: result?.added
             ? `Added to "${collectionTitle}"`
-            : `Already in "${collectionTitle}"`
-        );
-        setTimeout(() => setStatus(""), 2000);
-        setOpen(false);
-        router.refresh();
+            : `Already in "${collectionTitle}"`,
+        });
+        setTimeout(() => dispatch({ type: "SET_STATUS", payload: "" }), 2000);
+        dispatch({ type: "CLOSE" });
+        refresh();
       } catch (e) {
-        setStatus(e.message || "Could not add");
+        dispatch({ type: "SET_STATUS", payload: e.message || "Could not add" });
       }
     });
   }
@@ -61,15 +92,12 @@ export default function AddToCollectionMenu({ movie, movieId }) {
       try {
         const id = await createCollection({ title: t });
         await addItem(id, snapshot());
-        setStatus(`Added to "${t}"`);
-        setTimeout(() => setStatus(""), 2000);
-        setNewTitle("");
-        setCreating(false);
-        setOpen(false);
-        setCollections(null);
-        router.refresh();
+        dispatch({ type: "SET_STATUS", payload: `Added to "${t}"` });
+        setTimeout(() => dispatch({ type: "SET_STATUS", payload: "" }), 2000);
+        dispatch({ type: "RESET_AFTER_CREATE" });
+        refresh();
       } catch (e) {
-        setStatus(e.message || "Could not create");
+        dispatch({ type: "SET_STATUS", payload: e.message || "Could not create" });
       }
     });
   }
@@ -117,7 +145,9 @@ export default function AddToCollectionMenu({ movie, movieId }) {
                   <div className="flex flex-col gap-2">
                     <Input
                       value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
+                      onChange={(e) =>
+                        dispatch({ type: "SET_NEW_TITLE", payload: e.target.value })
+                      }
                       placeholder="New collection title"
                       maxLength={120}
                       disabled={isPending}
@@ -133,10 +163,7 @@ export default function AddToCollectionMenu({ movie, movieId }) {
                       </Button>
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          setCreating(false);
-                          setNewTitle("");
-                        }}
+                        onClick={() => dispatch({ type: "CANCEL_CREATING" })}
                         disabled={isPending}
                         className="h-9"
                       >
@@ -148,7 +175,7 @@ export default function AddToCollectionMenu({ movie, movieId }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setCreating(true)}
+                    onClick={() => dispatch({ type: "START_CREATING" })}
                     disabled={isPending}
                     className="self-start"
                   >
@@ -161,7 +188,7 @@ export default function AddToCollectionMenu({ movie, movieId }) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setOpen(false)}
+              onClick={() => dispatch({ type: "CLOSE" })}
               disabled={isPending}
             >
               Close

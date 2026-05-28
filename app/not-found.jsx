@@ -19,7 +19,7 @@ export default function NotFound() {
         This page didn&apos;t make the cut.
       </p>
       <p className="text-sm text-muted-foreground max-w-md mb-8">
-        The film, list, or page you&apos;re looking for doesn&apos;t exist — or it&apos;s
+        The film, list, or page you&apos;re looking for doesn&apos;t exist, or it&apos;s
         been pulled from the reel.
       </p>
       <div className="flex gap-3 flex-wrap justify-center">

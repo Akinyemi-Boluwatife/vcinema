@@ -2,6 +2,11 @@ import { Suspense } from "react";
 import SearchedMovies from "@/_components/searchMovies/SearchedMovies";
 import SearchMoviesSkeleton from "@/_components/searchMovies/SearchMoviesSkeleton";
 
+export const metadata = {
+  title: "Search movies",
+  description: "Search for films by title and add them to your collection.",
+};
+
 export default async function SearchMoviesPage({ searchParams }) {
   const { q } = await searchParams;
   const query = q || "";

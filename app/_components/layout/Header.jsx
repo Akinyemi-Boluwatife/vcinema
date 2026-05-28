@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import SignOutButton from "./SignOutButton";
@@ -23,7 +24,9 @@ export default async function Header() {
         </div>
         <div className="flex-1 hidden md:flex justify-center px-4">
           <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
-            <SearchInputWrapper />
+            <Suspense>
+              <SearchInputWrapper />
+            </Suspense>
           </div>
         </div>
         <div className="flex items-center gap-2 ml-auto md:ml-0">

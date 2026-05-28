@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import { getWatchHistory, getWatchedYears } from "@/_lib/watchedMovies";
 import { aggregateHistory } from "@/_lib/history";
 import HistoryTimeline from "./HistoryTimeline";
 import HistoryKpis from "./HistoryKpis";
 import HeatmapCalendar from "./HeatmapCalendar";
-import Pagination from "@/_components/shared/Pagination";
 import MonthlyWatchChart from "@/_components/stats/MonthlyWatchChart";
+import Pagination from "@/_components/shared/Pagination";
 import { Card, CardContent } from "@/components/ui/card";
 
 const PER_PAGE = 10;
@@ -89,7 +90,9 @@ export default async function WatchHistoryView({ year, page = 1 }) {
       ) : (
         <>
           <HistoryTimeline movies={timelineMovies} />
-          <Pagination total={yearMovies.length} perPage={PER_PAGE} />
+          <Suspense>
+            <Pagination total={yearMovies.length} perPage={PER_PAGE} />
+          </Suspense>
         </>
       )}
     </div>

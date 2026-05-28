@@ -22,7 +22,7 @@ const STATUS_LABEL = {
 };
 
 export default function AddToList({ movie, movieId, existingEntry }) {
-  const router = useRouter();
+  const { push } = useRouter();
   const [isEditing, setIsEditing] = useState(!existingEntry);
   const [isPendingSave, startSaving] = useTransition();
   const [isPendingRemove, startRemoving] = useTransition();
@@ -65,7 +65,7 @@ export default function AddToList({ movie, movieId, existingEntry }) {
           },
           status,
         );
-        router.push(`/watchedMovies?tab=${status}`);
+        push(`/watchedMovies?tab=${status}`);
       } catch (e) {
         setError(e.message || "Could not save changes. Please try again.");
       }
@@ -77,7 +77,7 @@ export default function AddToList({ movie, movieId, existingEntry }) {
     startRemoving(async () => {
       try {
         await removeFromList(movieId);
-        router.push("/watchedMovies");
+        push("/watchedMovies");
       } catch (e) {
         setError(e.message || "Could not remove this film. Please try again.");
       }

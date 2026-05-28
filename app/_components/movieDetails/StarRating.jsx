@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 
+const EMPTY_MESSAGES = [];
+
 export default function StarRating({
   maxRating = 5,
   color = "var(--cinema-accent)",
   size = 24,
   className = "",
-  messages = [],
+  messages = EMPTY_MESSAGES,
   defaultRating = 0,
   onSetRating,
 }) {

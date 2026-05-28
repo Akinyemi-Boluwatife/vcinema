@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { Search } from "lucide-react";
 import NumResult from "./NumResult";
 import MovieList from "./MovieList";
@@ -8,14 +9,18 @@ import SearchInputWrapper from "./SearchInputWrapper";
 import SearchEmptyState from "./SearchEmptyState";
 import SearchMoviesSkeleton from "./SearchMoviesSkeleton";
 
-export default function SearchMoviesList({ query, movies, statusMap = {}, error = null }) {
+const EMPTY_STATUS_MAP = {};
+
+export default function SearchMoviesList({ query, movies, statusMap = EMPTY_STATUS_MAP, error = null }) {
   const { isPending } = useNavigation();
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12">
 
       <div className="md:hidden mb-6">
-        <SearchInputWrapper size="lg" />
+        <Suspense>
+          <SearchInputWrapper size="lg" />
+        </Suspense>
       </div>
 
       {isPending ? (

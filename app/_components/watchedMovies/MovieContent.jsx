@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Film, Bookmark, X, Search } from "lucide-react";
 import Link from "next/link";
 import WatchedSummary from "./WatchedSummary";
@@ -71,7 +72,9 @@ export async function MovieContent({ activeTab, sortBy, sortOrder, page = 1 }) {
         <>
           {activeTab === "watched" && <WatchedSummary watched={movies} />}
           <WatchedMovieList watched={pageMovies} />
-          <Pagination total={movies.length} perPage={PER_PAGE} />
+          <Suspense>
+            <Pagination total={movies.length} perPage={PER_PAGE} />
+          </Suspense>
         </>
       )}
     </>

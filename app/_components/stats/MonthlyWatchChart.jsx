@@ -7,9 +7,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-} from "recharts";
+} from "./chart-primitives";
 
-const tickStyle = { fill: "var(--fg-2)", fontSize: 11 };
+const tickStyle = { fill: "var(--fg-2)", fontSize: 12 };
 
 function formatMonth(m) {
   const [y, mm] = m.split("-");

@@ -1,7 +1,24 @@
 "use server";
 import { createAnonClient } from "./supabase";
-import { getAuthContext } from "./auth";
+import { auth } from "./auth";
 import { generateSlug } from "./slug";
+
+async function trySlug(supabase, id, userId, remaining = 3) {
+  if (remaining <= 0) throw new Error("Could not generate unique slug");
+  const slug = generateSlug();
+  const { error } = await supabase
+    .from("collections")
+    .update({
+      is_public: true,
+      public_slug: slug,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id)
+    .eq("user_id", userId);
+  if (!error) return { isPublic: true, publicSlug: slug };
+  if (error.code !== "23505") throw new Error(error.message);
+  return trySlug(supabase, id, userId, remaining - 1);
+}
 
 function toCollection(row, extra = {}) {
   return {
@@ -27,14 +44,9 @@ function toItem(row) {
   };
 }
 
-async function requireUser() {
-  const { supabase, user } = await getAuthContext();
-  if (!user) throw new Error("Not authenticated");
-  return { supabase, user };
-}
 
 export async function listMyCollections() {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return [];
 
   const { data: collections } = await supabase
@@ -73,7 +85,7 @@ export async function listMyCollections() {
 }
 
 export async function getMyCollection(id) {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return null;
 
   const { data: row } = await supabase
@@ -95,6 +107,7 @@ export async function getMyCollection(id) {
 
 export async function getPublicCollectionBySlug(slug) {
   if (!slug) return null;
+  await auth();
   const supabase = createAnonClient();
 
   const { data: row } = await supabase
@@ -115,7 +128,8 @@ export async function getPublicCollectionBySlug(slug) {
 }
 
 export async function createCollection({ title, description }) {
-  const { supabase, user } = await requireUser();
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
   const clean = (title ?? "").trim().slice(0, 120);
   if (!clean) throw new Error("Title required");
 
@@ -132,8 +146,9 @@ export async function createCollection({ title, description }) {
   return data.id;
 }
 
-export async function updateCollectionMeta(id, { title, description }) {
-  const { supabase, user } = await requireUser();
+async function updateCollectionMeta(id, { title, description }) {
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
   const patch = { updated_at: new Date().toISOString() };
   if (title !== undefined) {
     const clean = title.trim().slice(0, 120);
@@ -151,7 +166,8 @@ export async function updateCollectionMeta(id, { title, description }) {
 }
 
 export async function deleteCollection(id) {
-  const { supabase, user } = await requireUser();
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
   await supabase
     .from("collections")
     .delete()
@@ -160,7 +176,8 @@ export async function deleteCollection(id) {
 }
 
 export async function togglePublic(id) {
-  const { supabase, user } = await requireUser();
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
 
   const { data: row } = await supabase
     .from("collections")
@@ -183,25 +200,12 @@ export async function togglePublic(id) {
     return { isPublic: false, publicSlug: null };
   }
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const slug = generateSlug();
-    const { error } = await supabase
-      .from("collections")
-      .update({
-        is_public: true,
-        public_slug: slug,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id)
-      .eq("user_id", user.id);
-    if (!error) return { isPublic: true, publicSlug: slug };
-    if (error.code !== "23505") throw new Error(error.message);
-  }
-  throw new Error("Could not generate unique slug");
+  return trySlug(supabase, id, user.id);
 }
 
 export async function addItem(collectionId, item) {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
 
   const { data, error } = await supabase.rpc("collection_add_item", {
     p_collection_id: collectionId,
@@ -215,7 +219,8 @@ export async function addItem(collectionId, item) {
 }
 
 export async function removeItem(collectionId, imdbID) {
-  const { supabase, user } = await requireUser();
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
 
   const { data: owns } = await supabase
     .from("collections")
@@ -238,7 +243,8 @@ export async function removeItem(collectionId, imdbID) {
 }
 
 export async function reorderItems(collectionId, orderedImdbIDs) {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
 
   const { error } = await supabase.rpc("collection_reorder", {
     p_collection_id: collectionId,

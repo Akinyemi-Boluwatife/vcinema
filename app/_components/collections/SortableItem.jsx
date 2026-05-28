@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
@@ -49,7 +50,7 @@ export default function SortableItem({ item, index, onRemove, isPending }) {
         <div className="w-9 shrink-0">
           <div className="poster rounded-sm">
             {item.poster && item.poster !== "N/A" ? (
-              <img src={item.poster} alt="" loading="lazy" />
+              <Image src={item.poster} alt="" width={300} height={450} />
             ) : (
               <div className="w-full h-full bg-muted" />
             )}

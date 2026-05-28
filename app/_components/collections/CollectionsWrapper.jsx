@@ -16,7 +16,7 @@ export async function CollectionsWrapper() {
                     No collections yet.
                 </p>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                    Make one to start curating — try &quot;Top 10 of All Time&quot; or
+                    Make one to start curating: try &quot;Top 10 of All Time&quot; or
                     &quot;Horror Marathons&quot;.
                 </p>
             </div>

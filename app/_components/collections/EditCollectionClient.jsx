@@ -20,7 +20,7 @@ import SortableItem from "./SortableItem";
 import { reorderItems, removeItem } from "@/_lib/collections";
 
 export default function EditCollectionClient({ collectionId, initialItems }) {
-  const router = useRouter();
+  const { refresh } = useRouter();
   const [items, setItems] = useState(initialItems);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState(null);
@@ -52,7 +52,7 @@ export default function EditCollectionClient({ collectionId, initialItems }) {
     startTransition(async () => {
       try {
         await reorderItems(collectionId, next.map((i) => i.imdbID));
-        router.refresh();
+        refresh();
       } catch (e) {
         setItems(prev);
         setError(e.message || "Could not save the new order.");
@@ -70,7 +70,7 @@ export default function EditCollectionClient({ collectionId, initialItems }) {
     startTransition(async () => {
       try {
         await removeItem(collectionId, imdbID);
-        router.refresh();
+        refresh();
       } catch (e) {
         setItems(prev);
         setError(e.message || "Could not remove that item.");

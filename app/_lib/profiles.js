@@ -1,8 +1,8 @@
 "use server";
 import { createAnonClient } from "./supabase";
-import { getAuthContext } from "./auth";
+import { auth } from "./auth";
 
-const RESERVED = new Set([
+const RESERVED = Object.freeze(new Set([
   "admin",
   "api",
   "auth",
@@ -27,7 +27,7 @@ const RESERVED = new Set([
   "privacy",
   "_next",
   "favicon",
-]);
+]));
 
 const USERNAME_RE = /^[a-z0-9_-]{3,24}$/;
 const STORAGE_PUBLIC_PREFIX = "/storage/v1/object/public/avatars/";
@@ -46,7 +46,7 @@ function ownedAvatarPath(url) {
   return parsed.pathname.slice(STORAGE_PUBLIC_PREFIX.length) || null;
 }
 
-export async function validateUsername(raw) {
+async function validateUsername(raw) {
   const value = (raw ?? "").trim().toLowerCase();
   if (!USERNAME_RE.test(value)) {
     return {
@@ -106,7 +106,7 @@ function toCollection(row, extra = {}) {
 
 
 export async function getMyProfile() {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return null;
   const { data } = await supabase
     .from("profiles")
@@ -122,7 +122,7 @@ export async function updateMyProfile({
   showWatched,
   showStats,
 }) {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return { error: "Not authenticated." };
 
   const patch = { updated_at: new Date().toISOString() };
@@ -155,6 +155,7 @@ export async function updateMyProfile({
 
 export async function getPublicProfileByUsername(username) {
   if (!username) return null;
+  await auth();
   const value = String(username).trim().toLowerCase();
   if (!USERNAME_RE.test(value)) return null;
 
@@ -169,6 +170,7 @@ export async function getPublicProfileByUsername(username) {
 }
 
 export async function getPublicWatched(username) {
+  await auth();
   const profile = await getPublicProfileByUsername(username);
   if (!profile || !profile.showWatched) return [];
 
@@ -183,6 +185,7 @@ export async function getPublicWatched(username) {
 }
 
 export async function getPublicCollections(username) {
+  await auth();
   const profile = await getPublicProfileByUsername(username);
   if (!profile) return [];
 
@@ -225,7 +228,7 @@ export async function getPublicCollections(username) {
 }
 
 export async function setMyAvatar({ publicUrl, storagePath }) {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return { error: "Not authenticated." };
 
   if (!storagePath || !storagePath.startsWith(`${user.id}/`)) {
@@ -235,16 +238,17 @@ export async function setMyAvatar({ publicUrl, storagePath }) {
     return { error: "Invalid avatar URL." };
   }
 
-  const { data: prev } = await supabase
-    .from("profiles")
-    .select("image")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const { error } = await supabase
-    .from("profiles")
-    .update({ image: publicUrl, updated_at: new Date().toISOString() })
-    .eq("id", user.id);
+  const [{ data: prev }, { error }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("image")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .update({ image: publicUrl, updated_at: new Date().toISOString() })
+      .eq("id", user.id),
+  ]);
   if (error) return { error: error.message };
 
   const oldPath = ownedAvatarPath(prev?.image);
@@ -255,19 +259,20 @@ export async function setMyAvatar({ publicUrl, storagePath }) {
 }
 
 export async function removeMyAvatar() {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return { error: "Not authenticated." };
 
-  const { data: prev } = await supabase
-    .from("profiles")
-    .select("image")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const { error } = await supabase
-    .from("profiles")
-    .update({ image: null, updated_at: new Date().toISOString() })
-    .eq("id", user.id);
+  const [{ data: prev }, { error }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("image")
+      .eq("id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .update({ image: null, updated_at: new Date().toISOString() })
+      .eq("id", user.id),
+  ]);
   if (error) return { error: error.message };
 
   const oldPath = ownedAvatarPath(prev?.image);

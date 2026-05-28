@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
-} from "recharts";
+} from "./chart-primitives";
 
 const palette = [
   "rgba(225, 29, 46, 0.85)",
@@ -18,7 +18,7 @@ const palette = [
   "rgba(255, 255, 255, 0.12)",
 ];
 
-const tickStyle = { fill: "var(--fg-2)", fontSize: 11 };
+const tickStyle = { fill: "var(--fg-2)", fontSize: 12 };
 
 function formatMonth(m) {
   const [y, mm] = m.split("-");
@@ -63,7 +63,7 @@ export default function GenresOverTimeChart({ data, genres }) {
           labelFormatter={formatMonth}
         />
         <Legend
-          wrapperStyle={{ fontSize: 11, color: "var(--fg-2)" }}
+          wrapperStyle={{ fontSize: 12, color: "var(--fg-2)" }}
           iconType="square"
         />
         {genres.map((g, i) => (

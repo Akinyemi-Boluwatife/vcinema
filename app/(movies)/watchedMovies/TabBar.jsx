@@ -1,13 +1,15 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import SortBy from "@/_components/watchedMovies/SortBy";
 import SortOrder from "@/_components/watchedMovies/SortOrder";
 import { TabsOptions } from "@/_components/watchedMovies/TabsOptions";
 
-export default function TabBar() {
+function TabBarInner() {
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") ?? "watched";
+  const get = searchParams.get.bind(searchParams);
+  const activeTab = get("tab") ?? "watched";
 
   return (
     <>
@@ -21,4 +23,8 @@ export default function TabBar() {
       )}
     </>
   );
+}
+
+export default function TabBar() {
+  return <Suspense fallback={null}><TabBarInner /></Suspense>;
 }

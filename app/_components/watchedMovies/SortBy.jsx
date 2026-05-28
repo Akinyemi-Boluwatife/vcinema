@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
 import {
@@ -17,19 +18,20 @@ const OPTIONS = [
   { value: "user_rating", label: "Your rating" },
 ];
 
-export default function SortBy() {
-  const router = useRouter();
+function SortByInner() {
+  const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const get = searchParams.get.bind(searchParams);
   const { startNavigation } = useNavigation();
-  const sortBy = searchParams.get("sortBy") || "imdb_rating";
+  const sortBy = get("sortBy") || "imdb_rating";
 
   function handleSort(sort) {
     const params = new URLSearchParams(searchParams);
     params.set("sortBy", sort);
     params.delete("page");
     startNavigation(() =>
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false }),
+      replace(`${pathname}?${params.toString()}`, { scroll: false }),
     );
   }
 
@@ -48,4 +50,8 @@ export default function SortBy() {
       </SelectContent>
     </Select>
   );
+}
+
+export default function SortBy() {
+  return <Suspense fallback={null}><SortByInner /></Suspense>;
 }

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { BarChart3 } from "lucide-react";
 import { getWatchedWithMetadata, aggregateStats } from "@/_lib/stats";
-import { getAuthContext } from "@/_lib/auth";
+import { auth } from "@/_lib/auth";
 import TasteProfileCard from "@/_components/stats/TasteProfileCard";
 import KpiRow from "@/_components/stats/KpiRow";
 import ChartCard from "@/_components/stats/ChartCard";
@@ -12,8 +12,7 @@ import TopPeopleList from "@/_components/stats/TopPeopleList";
 import StatsSkeleton from "@/_components/stats/StatsSkeleton";
 
 async function StatsContent() {
-  const { user } = await getAuthContext();
-  const rows = await getWatchedWithMetadata();
+  const [{ user }, rows] = await Promise.all([auth(), getWatchedWithMetadata()]);
   const stats = await aggregateStats(rows, user?.id ?? null);
 
   if (!stats) {

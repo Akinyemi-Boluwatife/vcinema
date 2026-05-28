@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import { useTheme } from "next-themes";
 const USERNAME_RE = /^[a-z0-9_-]{3,24}$/;
 
 export default function ProfileSettingsForm({ initial }) {
-  const router = useRouter();
+  const { refresh } = useRouter();
   const [isPending, startTransition] = useTransition();
   const [savedMessage, setSavedMessage] = useState(null);
   const {
@@ -52,7 +52,7 @@ export default function ProfileSettingsForm({ initial }) {
         return;
       }
       setSavedMessage("Saved.");
-      router.refresh();
+      refresh();
     });
   };
 
@@ -173,8 +173,7 @@ export default function ProfileSettingsForm({ initial }) {
 
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
 
   // Before mount, resolvedTheme is unknown on the server — keep both outline
   // so the first client render matches the server HTML and avoids hydration mismatch.

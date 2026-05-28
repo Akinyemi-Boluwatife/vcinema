@@ -23,7 +23,7 @@ export default function AvatarUploader({
   name,
   username,
 }) {
-  const router = useRouter();
+  const { refresh } = useRouter();
   const fileRef = useRef(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState(null);
@@ -73,7 +73,7 @@ export default function AvatarUploader({
         return;
       }
       setPreview(publicUrl);
-      router.refresh();
+      refresh();
     });
   }
 
@@ -86,7 +86,7 @@ export default function AvatarUploader({
         return;
       }
       setPreview(null);
-      router.refresh();
+      refresh();
     });
   }
 
@@ -136,6 +136,7 @@ export default function AvatarUploader({
             accept="image/jpeg,image/png,image/webp"
             className="hidden"
             onChange={handlePick}
+            aria-label="Upload avatar image"
           />
         </div>
       </CardContent>

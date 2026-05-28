@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function MovieDetailClient({ movie }) {
-  const router = useRouter();
+  const { back } = useRouter();
 
   const {
     Title: title,
@@ -27,7 +28,7 @@ export default function MovieDetailClient({ movie }) {
     <div className="pb-8">
       <div className="detail-backdrop relative -mx-4 sm:-mx-6 mb-0">
         {validPoster ? (
-          <img src={validPoster} alt="" aria-hidden />
+          <Image src={validPoster} alt="" aria-hidden fill className="object-cover" sizes="100vw" />
         ) : (
           <div className="absolute inset-0 bg-card" />
         )}
@@ -36,7 +37,7 @@ export default function MovieDetailClient({ movie }) {
             variant="outline"
             size="sm"
             className="h-8 backdrop-blur-md bg-background/60"
-            onClick={() => router.back()}
+            onClick={() => back()}
           >
             <ArrowLeft className="size-3.5" />
             Back
@@ -48,7 +49,7 @@ export default function MovieDetailClient({ movie }) {
         <div className="w-40 sm:w-52 flex-shrink-0 mx-auto sm:mx-0">
           <div className="poster shadow-2xl">
             {validPoster ? (
-              <img src={validPoster} alt={title} />
+              <Image src={validPoster} alt={title} width={300} height={450} />
             ) : (
               <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs text-center p-2">
                 No Poster

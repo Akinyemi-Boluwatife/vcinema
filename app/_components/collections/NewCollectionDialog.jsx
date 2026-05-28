@@ -17,7 +17,7 @@ import {
 import { createCollection } from "@/_lib/collections";
 
 export default function NewCollectionDialog() {
-  const router = useRouter();
+  const { push } = useRouter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -41,7 +41,7 @@ export default function NewCollectionDialog() {
         const id = await createCollection({ title, description });
         setOpen(false);
         reset();
-        router.push(`/lists/${id}`);
+        push(`/lists/${id}`);
       } catch (err) {
         setError(err.message || "Could not create");
       }
@@ -99,6 +99,7 @@ export default function NewCollectionDialog() {
               maxLength={500}
               rows={2}
               disabled={isPending}
+              aria-label="Description"
               className="w-full bg-transparent border border-input rounded-md px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-all resize-none"
             />
           </div>

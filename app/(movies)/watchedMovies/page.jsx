@@ -5,6 +5,11 @@ import TabContentWrapper from "@/_components/watchedMovies/TabContentWrapper";
 import WatchHistoryView from "@/_components/history/WatchHistoryView";
 import TabBar from "./TabBar";
 
+export const metadata = {
+  title: "My movies",
+  description: "Your watched, want-to-watch, and dropped films in one place.",
+};
+
 export default async function WatchedMoviesPage({ searchParams }) {
   const {
     tab,

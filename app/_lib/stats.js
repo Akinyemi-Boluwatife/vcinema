@@ -1,5 +1,5 @@
 "use server";
-import { getAuthContext } from "./auth";
+import { auth } from "./auth";
 import { getMovieDetails } from "./omdb";
 import { generateTasteBlurb } from "./deepseek";
 
@@ -10,8 +10,7 @@ function splitOmdbList(value) {
   if (!value || typeof value !== "string" || value === "N/A") return [];
   return value
     .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+    .flatMap((s) => { const t = s.trim(); return t ? [t] : []; });
 }
 
 function rowToWatched(row) {
@@ -31,27 +30,21 @@ function rowToWatched(row) {
 }
 
 async function runWithConcurrency(items, limit, worker) {
-  const results = [];
-  let i = 0;
-  const runners = Array.from(
-    { length: Math.min(limit, items.length) },
-    async () => {
-      while (i < items.length) {
-        const idx = i++;
-        try {
-          results[idx] = await worker(items[idx], idx);
-        } catch {
-          results[idx] = null;
-        }
-      }
-    },
-  );
-  await Promise.all(runners);
+  const results = new Array(items.length).fill(null);
+  let cursor = 0;
+  async function next() {
+    const idx = cursor++;
+    if (idx >= items.length) return;
+    try { results[idx] = await worker(items[idx], idx); }
+    catch { /* skip */ }
+    return next();
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, next));
   return results;
 }
 
 export async function getWatchedWithMetadata() {
-  const { supabase, user } = await getAuthContext();
+  const { supabase, user } = await auth();
   if (!user) return [];
 
   const { data } = await supabase
@@ -142,6 +135,7 @@ function topN(map, n) {
 
 export async function aggregateStats(rows, userId = null) {
   if (!rows.length) return null;
+  await auth();
 
   const totalFilms = rows.length;
   const ratedRows = rows.filter((r) => r.userRating > 0);
@@ -182,6 +176,7 @@ export async function aggregateStats(rows, userId = null) {
     }
   }
   const topGenres = topN(genreTotals, 5).map(([g]) => g);
+  const topGenresSet = new Set(topGenres);
 
   const genresOverTime = months.map((month) => {
     const point = { month };
@@ -193,7 +188,7 @@ export async function aggregateStats(rows, userId = null) {
     if (!k || !monthIndex.has(k)) continue;
     const idx = monthIndex.get(k);
     for (const g of r.genres || []) {
-      if (topGenres.includes(g)) {
+      if (topGenresSet.has(g)) {
         genresOverTime[idx][g] += 1;
       }
     }
@@ -210,8 +205,7 @@ export async function aggregateStats(rows, userId = null) {
     }
   }
   const avgRatingByGenre = Array.from(genreRatingAccum.entries())
-    .filter(([, v]) => v.count >= 2)
-    .map(([genre, v]) => ({ genre, avg: v.sum / v.count, count: v.count }))
+    .flatMap(([genre, v]) => v.count >= 2 ? [{ genre, avg: v.sum / v.count, count: v.count }] : [])
     .sort((a, b) => b.avg - a.avg)
     .slice(0, 10);
 
@@ -242,8 +236,7 @@ export async function aggregateStats(rows, userId = null) {
     }
   }
   const tasteCandidates = Array.from(decadeGenreAccum.values())
-    .filter((v) => v.count >= 3)
-    .map((v) => ({ ...v, avg: v.sum / v.count }))
+    .flatMap((v) => v.count >= 3 ? [{ ...v, avg: v.sum / v.count }] : [])
     .sort((a, b) => b.avg - a.avg);
   const top = tasteCandidates[0];
 
@@ -266,7 +259,7 @@ export async function aggregateStats(rows, userId = null) {
     : "Eclectic — keep rating to see your profile take shape.";
 
   if (userId) {
-    const { supabase } = await getAuthContext();
+    const { supabase } = await auth();
     const { data: prof } = await supabase
       .from("profiles")
       .select("taste_blurb, taste_blurb_fingerprint")

@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
 import {
@@ -10,19 +11,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function SortOrder() {
-  const router = useRouter();
+function SortOrderInner() {
+  const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const get = searchParams.get.bind(searchParams);
   const { startNavigation } = useNavigation();
-  const sortOrder = searchParams.get("sortOrder") || "desc";
+  const sortOrder = get("sortOrder") || "desc";
 
   function handleSortOrder(order) {
     const params = new URLSearchParams(searchParams);
     params.set("sortOrder", order);
     params.delete("page");
     startNavigation(() =>
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false }),
+      replace(`${pathname}?${params.toString()}`, { scroll: false }),
     );
   }
 
@@ -38,4 +40,8 @@ export default function SortOrder() {
       </SelectContent>
     </Select>
   );
+}
+
+export default function SortOrder() {
+  return <Suspense fallback={null}><SortOrderInner /></Suspense>;
 }

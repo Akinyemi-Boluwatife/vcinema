@@ -29,7 +29,7 @@ export const colors = {
   outlineVariant: 'rgba(255, 255, 255, 0.08)',
 };
 
-export const typography = {
+const typography = {
   display: {
     fontFamily: 'Instrument Serif, serif',
     fontStyle: 'italic',
@@ -66,7 +66,7 @@ export const typography = {
   },
 };
 
-export const rounded = {
+const rounded = {
   sm: '6px',
   DEFAULT: '10px',
   md: '10px',
@@ -75,7 +75,7 @@ export const rounded = {
   full: '9999px',
 };
 
-export const spacing = {
+const spacing = {
   base: '8px',
   xs: '4px',
   sm: '12px',

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -24,7 +25,7 @@ export default function HistoryTimeline({ movies }) {
               >
                 <div className="poster rounded-sm">
                   {m.poster && m.poster !== "N/A" ? (
-                    <img src={m.poster} alt={m.title} loading="lazy" />
+                    <Image src={m.poster} alt={m.title} width={300} height={450} />
                   ) : (
                     <div className="w-full h-full bg-muted" />
                   )}

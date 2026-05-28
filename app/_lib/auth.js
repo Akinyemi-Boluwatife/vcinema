@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { createServerSupabase } from "./supabase";
 
-export const getAuthContext = cache(async () => {
+export const auth = cache(async () => {
   const supabase = await createServerSupabase();
   const {
     data: { user },

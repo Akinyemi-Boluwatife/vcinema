@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,12 +12,13 @@ const TABS = [
   { key: "history", label: "History" },
 ];
 
-export function TabsOptions() {
-  const router = useRouter();
+function TabsOptionsInner() {
+  const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const get = searchParams.get.bind(searchParams);
   const { startNavigation } = useNavigation();
-  const active = searchParams.get("tab") ?? "watched";
+  const active = get("tab") ?? "watched";
 
   function handleSelect(key) {
     if (key === active) return;
@@ -24,7 +26,7 @@ export function TabsOptions() {
     params.set("tab", key);
     params.delete("page");
     startNavigation(() =>
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false }),
+      replace(`${pathname}?${params.toString()}`, { scroll: false }),
     );
   }
 
@@ -43,4 +45,8 @@ export function TabsOptions() {
       </TabsList>
     </Tabs>
   );
+}
+
+export function TabsOptions() {
+  return <Suspense fallback={null}><TabsOptionsInner /></Suspense>;
 }
