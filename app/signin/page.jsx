@@ -1,9 +1,7 @@
-import { FcGoogle } from "react-icons/fc";
 import Logo from "@/_components/layout/Logo";
 import SignInForm from "@/_components/auth/SignInForm";
-import { signInWithGoogle } from "@/_lib/actions";
+import GoogleSignInButton from "@/_components/auth/GoogleSignInButton";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "Sign in" };
 
@@ -44,17 +42,7 @@ export default async function SignInPage({ searchParams }) {
             </p>
           )}
 
-          <form action={signInWithGoogle}>
-            {next && <input type="hidden" name="next" value={next} />}
-            <Button
-              type="submit"
-              variant="outline"
-              className="w-full h-11 text-sm font-medium"
-            >
-              <FcGoogle className="text-xl shrink-0" aria-hidden />
-              Continue with Google
-            </Button>
-          </form>
+          <GoogleSignInButton next={next} />
 
           <div className="divider-or">or</div>
 

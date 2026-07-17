@@ -16,22 +16,6 @@ function safeNext(value) {
   return value;
 }
 
-export async function signInWithGoogle(formData) {
-  const { user } = await auth();
-  if (user) redirect("/searchMovies");
-  const next = safeNext(formData?.get?.("next"));
-  const supabase = await createServerSupabase();
-  const origin = (await headers()).get("origin");
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-    },
-  });
-  if (error) return { error: error.message };
-  if (data?.url) redirect(data.url);
-}
-
 export async function signInWithCredentials({ email, password, next }) {
   const { user } = await auth();
   if (user) redirect(safeNext(next));
