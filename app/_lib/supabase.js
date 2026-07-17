@@ -26,3 +26,13 @@ export async function createServerSupabase() {
 export function createAnonClient() {
   return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
+
+export function createServiceRoleClient() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
+  }
+  return createClient(SUPABASE_URL, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
