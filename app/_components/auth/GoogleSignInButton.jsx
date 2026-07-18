@@ -109,7 +109,7 @@ export default function GoogleSignInButton({ next }) {
         onReady={() => setScriptReady(true)}
       />
       {scriptReady && mounted ? (
-        <div ref={containerRef} className="flex w-full justify-center" />
+        <div ref={containerRef} className="gsi-button flex w-full justify-center" />
       ) : (
         <div className="h-11 w-full animate-pulse rounded-md bg-muted" aria-hidden />
       )}
