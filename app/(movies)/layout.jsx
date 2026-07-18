@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import BottomNav from "@/_components/layout/BottomNav";
 import { NavigationProvider } from "@/_contexts/NavigationContext";
 import { auth } from "@/_lib/auth";
 import Header from "@/_components/layout/Header";
@@ -11,8 +10,7 @@ export default async function MoviesLayout({ children }) {
   return (
     <NavigationProvider>
       <Header />
-      <main className="pb-24 md:pb-0">{children}</main>
-      <BottomNav />
+      <main>{children}</main>
     </NavigationProvider>
   );
 }

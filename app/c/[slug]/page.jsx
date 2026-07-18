@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Globe } from "lucide-react";
-import { getPublicCollectionBySlug } from "@/_lib/collections";
+import { getPublicCollectionBySlug } from "@/_lib/collections-data";
 import { createServerSupabase } from "@/_lib/supabase";
 import Logo from "@/_components/layout/Logo";
 import ViewerCta from "@/_components/profile/ViewerCta";

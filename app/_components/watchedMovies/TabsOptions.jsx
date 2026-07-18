@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useOptimistic } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,21 +17,28 @@ function TabsOptionsInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const get = searchParams.get.bind(searchParams);
-  const { startNavigation } = useNavigation();
+  const { startNavigation, setTargetTab } = useNavigation();
   const active = get("tab") ?? "watched";
+  // Optimistically move the active underline the instant a tab is clicked,
+  // instead of waiting for the navigation + data fetch to resolve the URL.
+  const [optimisticTab, setOptimisticTab] = useOptimistic(active);
 
   function handleSelect(key) {
-    if (key === active) return;
+    if (key === optimisticTab) return;
+    // Urgent (outside the transition) so the content loader can immediately
+    // render the destination tab's skeleton while the data streams in.
+    setTargetTab(key);
     const params = new URLSearchParams(searchParams);
     params.set("tab", key);
     params.delete("page");
-    startNavigation(() =>
-      replace(`${pathname}?${params.toString()}`, { scroll: false }),
-    );
+    startNavigation(() => {
+      setOptimisticTab(key);
+      replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
   }
 
   return (
-    <Tabs value={active} onValueChange={handleSelect} className="mb-6">
+    <Tabs value={optimisticTab} onValueChange={handleSelect} className="mb-6">
       <TabsList className="w-full justify-start gap-0 bg-transparent border-b border-border rounded-none p-0 h-auto overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map(({ key, label }) => (
           <TabsTrigger

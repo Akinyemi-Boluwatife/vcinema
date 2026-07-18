@@ -5,10 +5,10 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   CartesianGrid,
   LabelList,
 } from "./chart-primitives";
+import ChartContainer from "./ChartContainer";
 
 const tickStyle = { fill: "var(--fg-2)", fontSize: 12 };
 
@@ -21,7 +21,7 @@ export default function RatingByGenreChart({ data }) {
     );
   }
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ChartContainer>
       <BarChart
         data={data}
         layout="vertical"
@@ -71,6 +71,6 @@ export default function RatingByGenreChart({ data }) {
           />
         </Bar>
       </BarChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }

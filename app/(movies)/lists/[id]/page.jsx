@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getMyCollection } from "@/_lib/collections";
+import { getMyCollection } from "@/_lib/collections-data";
 import EditCollectionClient from "@/_components/collections/EditCollectionClient";
 import PublicToggle from "@/_components/collections/PublicToggle";
 import DeleteCollectionButton from "@/_components/collections/DeleteCollectionButton";

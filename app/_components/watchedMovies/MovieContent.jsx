@@ -6,7 +6,7 @@ import WatchedMovieList from "./WatchedMovieList";
 import Pagination from "@/_components/shared/Pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getMoviesByStatus } from "@/_lib/watchedMovies";
+import { getMoviesByStatus } from "@/_lib/watchedMovies-data";
 
 const EMPTY_STATES = {
   watched: {

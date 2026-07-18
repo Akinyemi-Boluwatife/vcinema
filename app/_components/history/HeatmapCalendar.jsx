@@ -173,10 +173,11 @@ export default function HeatmapCalendar({ year, byDay }) {
               style={{ cursor: c.count > 0 ? "pointer" : "default" }}
             >
               <title>
-                {formatLong(c.date)}
-                {c.count > 0
-                  ? ` — ${c.count} ${c.count === 1 ? "movie" : "movies"}: ${c.titles.join(", ")}`
-                  : " — no movies"}
+                {`${formatLong(c.date)}${
+                  c.count > 0
+                    ? ` — ${c.count} ${c.count === 1 ? "movie" : "movies"}: ${c.titles.join(", ")}`
+                    : " — no movies"
+                }`}
               </title>
             </rect>
           ))}

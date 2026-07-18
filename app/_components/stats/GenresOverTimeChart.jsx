@@ -5,10 +5,10 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   CartesianGrid,
   Legend,
 } from "./chart-primitives";
+import ChartContainer from "./ChartContainer";
 
 const palette = [
   "rgba(225, 29, 46, 0.85)",
@@ -36,7 +36,7 @@ export default function GenresOverTimeChart({ data, genres }) {
     );
   }
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ChartContainer>
       <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
         <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
         <XAxis
@@ -78,6 +78,6 @@ export default function GenresOverTimeChart({ data, genres }) {
           />
         ))}
       </AreaChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }

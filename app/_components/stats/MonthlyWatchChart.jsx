@@ -5,9 +5,9 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
   CartesianGrid,
 } from "./chart-primitives";
+import ChartContainer from "./ChartContainer";
 
 const tickStyle = { fill: "var(--fg-2)", fontSize: 12 };
 
@@ -20,7 +20,7 @@ function formatMonth(m) {
 
 export default function MonthlyWatchChart({ data }) {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ChartContainer>
       <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
         <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
         <XAxis
@@ -53,6 +53,6 @@ export default function MonthlyWatchChart({ data }) {
           radius={[4, 4, 0, 0]}
         />
       </BarChart>
-    </ResponsiveContainer>
+    </ChartContainer>
   );
 }

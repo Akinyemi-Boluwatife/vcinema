@@ -1,7 +1,7 @@
 "use server";
-import { createAnonClient } from "./supabase";
 import { auth } from "./auth";
 import { generateSlug } from "./slug";
+import { toCollection } from "./collections-data";
 
 async function trySlug(supabase, id, userId, remaining = 3) {
   if (remaining <= 0) throw new Error("Could not generate unique slug");
@@ -19,31 +19,6 @@ async function trySlug(supabase, id, userId, remaining = 3) {
   if (error.code !== "23505") throw new Error(error.message);
   return trySlug(supabase, id, userId, remaining - 1);
 }
-
-function toCollection(row, extra = {}) {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    title: row.title,
-    description: row.description ?? "",
-    isPublic: !!row.is_public,
-    publicSlug: row.public_slug ?? null,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    ...extra,
-  };
-}
-
-function toItem(row) {
-  return {
-    imdbID: row.imdb_id,
-    title: row.title,
-    poster: row.poster,
-    year: row.year,
-    position: row.position,
-  };
-}
-
 
 export async function listMyCollections() {
   const { supabase, user } = await auth();
@@ -84,49 +59,6 @@ export async function listMyCollections() {
   );
 }
 
-export async function getMyCollection(id) {
-  const { supabase, user } = await auth();
-  if (!user) return null;
-
-  const { data: row } = await supabase
-    .from("collections")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!row) return null;
-
-  const { data: items } = await supabase
-    .from("collection_items")
-    .select("*")
-    .eq("collection_id", id)
-    .order("position", { ascending: true });
-
-  return toCollection(row, { items: (items ?? []).map(toItem) });
-}
-
-export async function getPublicCollectionBySlug(slug) {
-  if (!slug) return null;
-  await auth();
-  const supabase = createAnonClient();
-
-  const { data: row } = await supabase
-    .from("collections")
-    .select("*")
-    .eq("public_slug", slug)
-    .eq("is_public", true)
-    .maybeSingle();
-  if (!row) return null;
-
-  const { data: items } = await supabase
-    .from("collection_items")
-    .select("*")
-    .eq("collection_id", row.id)
-    .order("position", { ascending: true });
-
-  return toCollection(row, { items: (items ?? []).map(toItem) });
-}
-
 export async function createCollection({ title, description }) {
   const { supabase, user } = await auth();
   if (!user) throw new Error("Not authenticated");
@@ -144,25 +76,6 @@ export async function createCollection({ title, description }) {
     .single();
   if (error) throw new Error(error.message);
   return data.id;
-}
-
-async function updateCollectionMeta(id, { title, description }) {
-  const { supabase, user } = await auth();
-  if (!user) throw new Error("Not authenticated");
-  const patch = { updated_at: new Date().toISOString() };
-  if (title !== undefined) {
-    const clean = title.trim().slice(0, 120);
-    if (!clean) throw new Error("Title required");
-    patch.title = clean;
-  }
-  if (description !== undefined) {
-    patch.description = description.trim().slice(0, 500) || null;
-  }
-  await supabase
-    .from("collections")
-    .update(patch)
-    .eq("id", id)
-    .eq("user_id", user.id);
 }
 
 export async function deleteCollection(id) {

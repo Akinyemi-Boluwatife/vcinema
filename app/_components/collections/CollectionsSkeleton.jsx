@@ -20,12 +20,10 @@ function CollectionCardSkeleton() {
 
 export default function CollectionsSkeleton({ count = 6 }) {
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: count }).map((_, i) => (
-          <CollectionCardSkeleton key={i} />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <CollectionCardSkeleton key={i} />
+      ))}
     </div>
   );
 }

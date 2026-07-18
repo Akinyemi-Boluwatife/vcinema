@@ -1,5 +1,3 @@
-"use client";
-
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/_lib/actions";

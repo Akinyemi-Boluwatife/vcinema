@@ -1,4 +1,3 @@
-"use server";
 import { auth } from "./auth";
 import { getMovieDetails } from "./omdb";
 import { generateTasteBlurb } from "./deepseek";

@@ -1,4 +1,4 @@
-"use server";
+import { cache } from "react";
 import { createAnonClient } from "./supabase";
 import { auth } from "./auth";
 
@@ -105,7 +105,7 @@ function toCollection(row, extra = {}) {
 }
 
 
-export async function getMyProfile() {
+export const getMyProfile = cache(async () => {
   const { supabase, user } = await auth();
   if (!user) return null;
   const { data } = await supabase
@@ -114,7 +114,7 @@ export async function getMyProfile() {
     .eq("id", user.id)
     .maybeSingle();
   return data ? toProfile(data) : null;
-}
+});
 
 export async function updateMyProfile({
   username,
@@ -153,7 +153,7 @@ export async function updateMyProfile({
   return { ok: true };
 }
 
-export async function getPublicProfileByUsername(username) {
+export const getPublicProfileByUsername = cache(async (username) => {
   if (!username) return null;
   await auth();
   const value = String(username).trim().toLowerCase();
@@ -167,9 +167,9 @@ export async function getPublicProfileByUsername(username) {
     .eq("is_public", true)
     .maybeSingle();
   return data ? toProfile(data) : null;
-}
+});
 
-export async function getPublicWatched(username) {
+export const getPublicWatched = cache(async (username) => {
   await auth();
   const profile = await getPublicProfileByUsername(username);
   if (!profile || !profile.showWatched) return [];
@@ -182,9 +182,9 @@ export async function getPublicWatched(username) {
     .eq("status", "watched")
     .order("watched_at", { ascending: false, nullsFirst: false });
   return (data ?? []).map(toWatched);
-}
+});
 
-export async function getPublicCollections(username) {
+export const getPublicCollections = cache(async (username) => {
   await auth();
   const profile = await getPublicProfileByUsername(username);
   if (!profile) return [];
@@ -225,7 +225,7 @@ export async function getPublicCollections(username) {
       coverPoster: meta.get(r.id).coverPoster,
     })
   );
-}
+});
 
 export async function setMyAvatar({ publicUrl, storagePath }) {
   const { supabase, user } = await auth();

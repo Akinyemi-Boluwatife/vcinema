@@ -3,6 +3,7 @@ import { MovieContent } from "@/_components/watchedMovies/MovieContent";
 import WatchedMoviesContentLoader from "@/_components/watchedMovies/WatchedMoviesContentLoader";
 import TabContentWrapper from "@/_components/watchedMovies/TabContentWrapper";
 import WatchHistoryView from "@/_components/history/WatchHistoryView";
+import HistorySkeleton from "@/_components/history/HistorySkeleton";
 import TabBar from "./TabBar";
 
 export const metadata = {
@@ -49,8 +50,16 @@ export default async function WatchedMoviesPage({ searchParams }) {
         <TabBar />
       </Suspense>
 
-      <Suspense fallback={<WatchedMoviesContentLoader />}>
-        <TabContentWrapper>
+      <Suspense
+        fallback={
+          activeTab === "history" ? (
+            <HistorySkeleton />
+          ) : (
+            <WatchedMoviesContentLoader />
+          )
+        }
+      >
+        <TabContentWrapper activeTab={activeTab}>
           {activeTab === "history" ? (
             <WatchHistoryView year={yearParam} page={pageParam} />
           ) : (

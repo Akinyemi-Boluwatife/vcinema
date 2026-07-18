@@ -1,25 +1,21 @@
-import Image from "next/image";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Film } from "lucide-react";
-import {
-  getPublicProfileByUsername,
-  getPublicWatched,
-  getPublicCollections,
-} from "@/_lib/profiles";
-import { aggregateStats } from "@/_lib/stats";
+import { getPublicProfileByUsername } from "@/_lib/profiles";
 import { createServerSupabase } from "@/_lib/supabase";
 import Logo from "@/_components/layout/Logo";
-import MovieCard from "@/_components/ui/MovieCard";
-import KpiRow from "@/_components/stats/KpiRow";
-import Pagination from "@/_components/shared/Pagination";
 import ViewerCta from "@/_components/profile/ViewerCta";
+import PublicStatsSection from "@/_components/profile/PublicStatsSection";
+import PublicStatsSectionSkeleton from "@/_components/profile/PublicStatsSectionSkeleton";
+import PublicWatchedSection from "@/_components/profile/PublicWatchedSection";
+import PublicWatchedSectionSkeleton from "@/_components/profile/PublicWatchedSectionSkeleton";
+import PublicListsSection from "@/_components/profile/PublicListsSection";
+import PublicListsSectionSkeleton from "@/_components/profile/PublicListsSectionSkeleton";
+import PublicProfileEmptyState from "@/_components/profile/PublicProfileEmptyState";
+import { parsePage } from "@/_components/profile/publicProfileUtils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-const PER_PAGE = 10;
 
 export async function generateMetadata({ params }) {
   const { username } = await params;
@@ -64,20 +60,6 @@ export default async function PublicProfilePage({ params, searchParams }) {
   const wp = parsePage(sp.wp);
   const lp = parsePage(sp.lp);
 
-  const [watched, collections] = await Promise.all([
-    getPublicWatched(profile.username),
-    getPublicCollections(profile.username),
-  ]);
-
-  const stats =
-    profile.showStats && watched.length ? await aggregateStats(watched) : null;
-
-  const watchedPage = paginate(watched, wp, PER_PAGE);
-  const listsPage = paginate(collections, lp, PER_PAGE);
-
-  const hasAnySection =
-    !!stats || (profile.showWatched && watched.length) || collections.length > 0;
-
   const joined = profile.createdAt
     ? new Date(profile.createdAt).toLocaleDateString("en-US", {
         month: "long",
@@ -106,63 +88,24 @@ export default async function PublicProfilePage({ params, searchParams }) {
           joined={joined}
         />
 
-        {stats && (
-          <Section title="Stats">
-            <KpiRow kpis={stats.kpis} />
-          </Section>
-        )}
+        <Suspense fallback={<PublicStatsSectionSkeleton />}>
+          <PublicStatsSection
+            username={profile.username}
+            showStats={profile.showStats}
+          />
+        </Suspense>
 
-        {profile.showWatched && watched.length > 0 && (
-          <Section
-            title="Watched"
-            subtitle={`${watched.length} ${watched.length === 1 ? "film" : "films"}`}
-          >
-            <div className="flex flex-col gap-3">
-              {watchedPage.map((m) => (
-                <MovieCard key={m.imdbID} movie={m} variant="watched" />
-              ))}
-            </div>
-            <Suspense>
-              <Pagination
-                paramName="wp"
-                total={watched.length}
-                perPage={PER_PAGE}
-              />
-            </Suspense>
-          </Section>
-        )}
+        <Suspense fallback={<PublicWatchedSectionSkeleton />}>
+          <PublicWatchedSection username={profile.username} page={wp} />
+        </Suspense>
 
-        {collections.length > 0 && (
-          <Section
-            title="Public lists"
-            subtitle={`${collections.length} ${collections.length === 1 ? "list" : "lists"}`}
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {listsPage.map((c) => (
-                <PublicCollectionLink key={c.id} collection={c} />
-              ))}
-            </div>
-            <Suspense>
-              <Pagination
-                paramName="lp"
-                total={collections.length}
-                perPage={PER_PAGE}
-              />
-            </Suspense>
-          </Section>
-        )}
+        <Suspense fallback={<PublicListsSectionSkeleton />}>
+          <PublicListsSection username={profile.username} page={lp} />
+        </Suspense>
 
-        {!hasAnySection && (
-          <div className="flex flex-col items-center text-center py-12">
-            <Film
-              className="size-8 text-muted-foreground mb-4"
-              aria-hidden
-            />
-            <p className="text-base font-medium text-foreground mb-1">
-              Nothing to show here yet.
-            </p>
-          </div>
-        )}
+        <Suspense fallback={null}>
+          <PublicProfileEmptyState username={profile.username} />
+        </Suspense>
 
         {!viewer && (
           <Card>
@@ -187,18 +130,6 @@ export default async function PublicProfilePage({ params, searchParams }) {
       </div>
     </div>
   );
-}
-
-function parsePage(raw) {
-  const n = Number(raw);
-  return Number.isInteger(n) && n >= 1 ? n : 1;
-}
-
-function paginate(list, page, perPage) {
-  const totalPages = Math.max(1, Math.ceil(list.length / perPage));
-  const safe = Math.min(Math.max(1, page), totalPages);
-  const start = (safe - 1) * perPage;
-  return list.slice(start, start + perPage);
 }
 
 function ProfileHeader({ name, username, image, joined }) {
@@ -230,60 +161,5 @@ function ProfileHeader({ name, username, image, joined }) {
         )}
       </div>
     </div>
-  );
-}
-
-function Section({ title, subtitle, children }) {
-  return (
-    <section className="flex flex-col gap-4">
-      <div>
-        <h2 className="text-lg md:text-xl font-semibold text-foreground">
-          {title}
-        </h2>
-        {subtitle && (
-          <p className="text-muted-foreground text-xs mt-1">{subtitle}</p>
-        )}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-function PublicCollectionLink({ collection }) {
-  const { title, description, itemCount, coverPoster, publicSlug } = collection;
-  return (
-    <Link href={`/c/${publicSlug}`} className="no-underline">
-      <Card className="overflow-hidden hover:border-primary transition-colors h-full p-0">
-        <div className="h-24 bg-muted relative">
-          {coverPoster ? (
-            <Image
-              src={coverPoster}
-              alt=""
-              fill
-              className="object-cover"
-              style={{ filter: "saturate(0.85)" }}
-              sizes="(max-width: 640px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <Film className="size-6" aria-hidden />
-            </div>
-          )}
-        </div>
-        <div className="p-4">
-          <p className="text-foreground text-sm font-medium truncate">
-            {title}
-          </p>
-          {description && (
-            <p className="text-muted-foreground text-xs line-clamp-2 mt-1">
-              {description}
-            </p>
-          )}
-          <p className="text-muted-foreground text-xs mt-2">
-            {itemCount} {itemCount === 1 ? "film" : "films"}
-          </p>
-        </div>
-      </Card>
-    </Link>
   );
 }

@@ -1,5 +1,5 @@
 import { searchMovies } from "@/_lib/omdb";
-import { getMovieStatuses } from "@/_lib/watchedMovies";
+import { getMovieStatuses } from "@/_lib/watchedMovies-data";
 import SearchMoviesList from "./SearchMoviesList";
 
 export default async function SearchedMovies({ query }) {

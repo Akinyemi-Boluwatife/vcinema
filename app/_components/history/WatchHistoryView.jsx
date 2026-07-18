@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getWatchHistory, getWatchedYears } from "@/_lib/watchedMovies";
+import { getWatchHistory } from "@/_lib/watchedMovies-data";
 import { aggregateHistory } from "@/_lib/history";
 import HistoryTimeline from "./HistoryTimeline";
 import HistoryKpis from "./HistoryKpis";
@@ -12,10 +12,20 @@ const PER_PAGE = 10;
 
 export default async function WatchHistoryView({ year, page = 1 }) {
   const currentYear = new Date().getUTCFullYear();
-  const [years, allWatched] = await Promise.all([
-    getWatchedYears(),
-    getWatchHistory(),
-  ]);
+  // A single query returns every watched row (with watched_at); the list of
+  // available years is derivable from it, so there's no need for a second
+  // getWatchedYears() round-trip.
+  const allWatched = await getWatchHistory();
+
+  const years = Array.from(
+    new Set(
+      allWatched
+        .map((m) =>
+          m.watchedAt ? new Date(m.watchedAt).getUTCFullYear() : null,
+        )
+        .filter((y) => Number.isFinite(y)),
+    ),
+  ).sort((a, b) => b - a);
 
   const resolvedYear =
     year && years.includes(year) ? year : (years[0] ?? currentYear);

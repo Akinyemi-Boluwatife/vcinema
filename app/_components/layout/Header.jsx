@@ -4,6 +4,7 @@ import Logo from "./Logo";
 import SignOutButton from "./SignOutButton";
 import SearchInputWrapper from "@/_components/searchMovies/SearchInputWrapper";
 import NavigationWrapper from "./NavigationWrapper";
+import MobileNav from "./MobileNav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getMyProfile } from "@/_lib/profiles";
 
@@ -18,7 +19,8 @@ export default async function Header() {
   return (
     <header className="sticky top-0 z-50 h-16 md:h-20 border-b border-border bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className="h-full max-w-screen-2xl mx-auto px-4 sm:px-6 flex items-center gap-4 sm:gap-6">
-        <div className="flex items-center gap-4 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-6">
+          <MobileNav />
           <Logo size={24} />
           <NavigationWrapper />
         </div>
