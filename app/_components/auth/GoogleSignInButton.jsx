@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { useTheme } from "next-themes";
+import { FcGoogle } from "react-icons/fc";
+import { Button } from "@/components/ui/button";
 import { createBrowserSupabase } from "@/_lib/supabase-browser";
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-const MAX_BUTTON_WIDTH = 400;
 const DEFAULT_NEXT = "/searchMovies";
 
 async function createNoncePair() {
@@ -24,30 +24,25 @@ async function createNoncePair() {
 
 export default function GoogleSignInButton({ next }) {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
-  const containerRef = useRef(null);
+  // Google's real button renders here, but it is never shown — see below.
+  const hiddenButtonRef = useRef(null);
   const [scriptReady, setScriptReady] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!scriptReady || !mounted || !containerRef.current) return;
+    if (!scriptReady || !mounted || !hiddenButtonRef.current) return;
     if (!CLIENT_ID) {
       setError("Google sign-in is not configured.");
       return;
     }
 
     let cancelled = false;
-    // Track the last width the button was rendered at. Rendering the button
-    // changes the container's height, which re-fires ResizeObserver; without
-    // this guard that feedback loop re-renders the button endlessly (a constant
-    // flicker on mobile). We only re-render when the *button width* changes.
-    let lastWidth = 0;
 
-    async function render(width) {
+    (async () => {
       const { nonce, hashedNonce } = await createNoncePair();
-      if (cancelled || !containerRef.current) return;
+      if (cancelled || !hiddenButtonRef.current) return;
 
       window.google.accounts.id.initialize({
         client_id: CLIENT_ID,
@@ -70,36 +65,31 @@ export default function GoogleSignInButton({ next }) {
         },
       });
 
-      containerRef.current.innerHTML = "";
-      window.google.accounts.id.renderButton(containerRef.current, {
+      // Google renders a different button depending on the browser's Google
+      // session state — a plain "Continue with Google" bar, or (when the user
+      // is already signed into Google) a personalized "Continue as X" card.
+      // Both use Google's own internal, undocumented, unstable class names, so
+      // there is no reliable way to restyle them to match this app. Instead we
+      // never show this button at all: it renders into a real, laid-out but
+      // visually hidden node, and our own dark button (below) forwards a real
+      // click to it. Size/theme are irrelevant since it's never seen.
+      window.google.accounts.id.renderButton(hiddenButtonRef.current, {
         type: "standard",
-        theme: resolvedTheme === "dark" ? "filled_black" : "outline",
-        size: "large",
-        shape: "rectangular",
-        text: "continue_with",
-        logo_alignment: "left",
-        width,
+        width: 300,
       });
-    }
-
-    const observer = new ResizeObserver(([entry]) => {
-      const width = Math.min(
-        Math.round(entry.contentRect.width),
-        MAX_BUTTON_WIDTH
-      );
-      // Ignore zero-width and height-only changes (the latter is the button's
-      // own render feeding back into the observer).
-      if (width <= 0 || width === lastWidth) return;
-      lastWidth = width;
-      render(width);
-    });
-    observer.observe(containerRef.current);
+    })();
 
     return () => {
       cancelled = true;
-      observer.disconnect();
     };
-  }, [scriptReady, mounted, resolvedTheme, next, router]);
+  }, [scriptReady, mounted, next, router]);
+
+  function handleClick() {
+    const target = hiddenButtonRef.current?.querySelector(
+      '[role="button"]'
+    );
+    target?.click();
+  }
 
   return (
     <div>
@@ -108,11 +98,30 @@ export default function GoogleSignInButton({ next }) {
         strategy="afterInteractive"
         onReady={() => setScriptReady(true)}
       />
-      {scriptReady && mounted ? (
-        <div ref={containerRef} className="gsi-button flex w-full justify-center" />
-      ) : (
-        <div className="h-11 w-full animate-pulse rounded-md bg-muted" aria-hidden />
-      )}
+
+      {/* Real Google button: off-screen, non-interactive to the user (inert),
+          hidden from assistive tech. Our visible button below forwards a real
+          click to it synchronously, inside the same user gesture, so Google's
+          account picker / FedCM prompt still opens normally. */}
+      <div
+        ref={hiddenButtonRef}
+        inert
+        aria-hidden="true"
+        className="absolute opacity-0 -z-10"
+        style={{ pointerEvents: "none" }}
+      />
+
+      <Button
+        type="button"
+        variant="outline"
+        onClick={handleClick}
+        disabled={!scriptReady || !mounted || isPending || !!error}
+        className="w-full h-11 text-sm font-medium"
+      >
+        <FcGoogle className="text-xl shrink-0" aria-hidden />
+        {isPending ? "Signing in…" : "Continue with Google"}
+      </Button>
+
       {isPending && !error && (
         <p className="mt-2 text-center text-xs text-muted-foreground">
           Signing in…

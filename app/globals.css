@@ -514,12 +514,3 @@
     background: var(--border);
   }
 }
-
-/* Google Identity Services (filled_black) renders the "G" on a white logo tile,
-   leaving a white block + rounded corners inside our dark button. Make that tile
-   transparent so the button reads as one uniform dark surface. Unlayered +
-   !important so it beats GSI's injected stylesheet. The class is Google's
-   obfuscated (but long-stable) tile class — revisit if the button regresses. */
-.gsi-button .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf {
-  background-color: transparent !important;
-}
