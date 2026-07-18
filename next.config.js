@@ -3,7 +3,7 @@ const isDev = process.env.NODE_ENV !== "production";
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://accounts.google.com${isDev ? " 'unsafe-eval'" : ""}`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
   "img-src 'self' data: https://m.media-amazon.com https://*.supabase.co https://lh3.googleusercontent.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "connect-src 'self' https://*.supabase.co https://accounts.google.com",

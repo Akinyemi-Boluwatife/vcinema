@@ -39,10 +39,15 @@ export default function GoogleSignInButton({ next }) {
     }
 
     let cancelled = false;
+    // Track the last width the button was rendered at. Rendering the button
+    // changes the container's height, which re-fires ResizeObserver; without
+    // this guard that feedback loop re-renders the button endlessly (a constant
+    // flicker on mobile). We only re-render when the *button width* changes.
+    let lastWidth = 0;
 
     async function render(width) {
       const { nonce, hashedNonce } = await createNoncePair();
-      if (cancelled) return;
+      if (cancelled || !containerRef.current) return;
 
       window.google.accounts.id.initialize({
         client_id: CLIENT_ID,
@@ -73,12 +78,20 @@ export default function GoogleSignInButton({ next }) {
         shape: "rectangular",
         text: "continue_with",
         logo_alignment: "left",
-        width: Math.min(Math.round(width), MAX_BUTTON_WIDTH),
+        width,
       });
     }
 
     const observer = new ResizeObserver(([entry]) => {
-      if (entry.contentRect.width > 0) render(entry.contentRect.width);
+      const width = Math.min(
+        Math.round(entry.contentRect.width),
+        MAX_BUTTON_WIDTH
+      );
+      // Ignore zero-width and height-only changes (the latter is the button's
+      // own render feeding back into the observer).
+      if (width <= 0 || width === lastWidth) return;
+      lastWidth = width;
+      render(width);
     });
     observer.observe(containerRef.current);
 
