@@ -620,6 +620,12 @@
 .app-shell a:active .poster {
   opacity: 0.8;
 }
+.app-shell [data-slot="switch"][data-state="unchecked"] {
+  background: color-mix(in srgb, var(--foreground) 28%, transparent);
+}
+.app-shell .poster-overlay--dropped {
+  color: #d4d4d8;
+}
 .app-shell .poster-overlay {
   top: 8px;
   right: 8px;
