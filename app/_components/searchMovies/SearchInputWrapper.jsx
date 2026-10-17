@@ -7,11 +7,11 @@ import SearchInput from "./SearchInput";
 function SearchInputInner({ size }) {
   const searchParams = useSearchParams();
   const get = searchParams.get.bind(searchParams);
-  const { query, handleQueryChange } = useMovieSearch(get("q") ?? "");
+  const { query, handleQueryChange, handleSubmit } = useMovieSearch(get("q") ?? "");
 
   return (
     <div className="w-full">
-      <SearchInput query={query} onQueryChange={handleQueryChange} size={size} />
+      <SearchInput query={query} onQueryChange={handleQueryChange} onSubmit={handleSubmit} size={size} />
     </div>
   );
 }

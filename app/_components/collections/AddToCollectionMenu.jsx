@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/_components/ui/Toaster";
 import {
   listMyCollections,
   createCollection,
@@ -44,6 +45,7 @@ function reducer(state, action) {
 
 export default function AddToCollectionMenu({ movie, movieId }) {
   const { refresh } = useRouter();
+  const { toast } = useToast();
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const { open, collections, creating, newTitle, status } = state;
   const [isPending, startTransition] = useTransition();
@@ -70,13 +72,11 @@ export default function AddToCollectionMenu({ movie, movieId }) {
     startTransition(async () => {
       try {
         const result = await addItem(collectionId, snapshot());
-        dispatch({
-          type: "SET_STATUS",
-          payload: result?.added
+        toast(
+          result?.added
             ? `Added to "${collectionTitle}"`
             : `Already in "${collectionTitle}"`,
-        });
-        setTimeout(() => dispatch({ type: "SET_STATUS", payload: "" }), 2000);
+        );
         dispatch({ type: "CLOSE" });
         refresh();
       } catch (e) {
@@ -92,8 +92,7 @@ export default function AddToCollectionMenu({ movie, movieId }) {
       try {
         const id = await createCollection({ title: t });
         await addItem(id, snapshot());
-        dispatch({ type: "SET_STATUS", payload: `Added to "${t}"` });
-        setTimeout(() => dispatch({ type: "SET_STATUS", payload: "" }), 2000);
+        toast(`Added to "${t}"`);
         dispatch({ type: "RESET_AFTER_CREATE" });
         refresh();
       } catch (e) {
