@@ -10,8 +10,8 @@ export default function CollectionCard({ collection }) {
 
   return (
     <Link href={`/lists/${id}`} className="no-underline group">
-      <Card className="overflow-hidden hover:border-primary transition-colors h-full p-0">
-        <div className="h-32 bg-muted flex items-stretch overflow-hidden relative">
+      <Card className="overflow-hidden h-full p-0 gap-0">
+        <div className="h-36 bg-muted flex items-stretch overflow-hidden relative">
           {coverPoster ? (
             <Image
               src={coverPoster}
@@ -29,7 +29,7 @@ export default function CollectionCard({ collection }) {
         </div>
         <div className="p-4 space-y-1.5">
           <div className="flex items-start justify-between gap-2">
-            <p className="text-foreground text-base font-medium truncate">
+            <p className="text-foreground text-base font-semibold truncate">
               {title}
             </p>
             {isPublic && (

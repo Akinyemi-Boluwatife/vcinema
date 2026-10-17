@@ -74,7 +74,7 @@ export default function MovieDetailClient({ movie }) {
           </h1>
           <div className="flex flex-wrap gap-1.5">
             {genres.map((g) => (
-              <Badge key={g} variant="outline" className="text-xs">
+              <Badge key={g} variant="secondary" className="text-xs">
                 {g}
               </Badge>
             ))}

@@ -39,11 +39,11 @@ function SearchCard({ movie, status }) {
         <PosterImage src={validPoster} alt={Title} />
         <StatusOverlay status={status} />
       </div>
-      <div className="mt-2 px-0.5">
-        <p className="text-sm text-foreground leading-tight line-clamp-2">
+      <div className="mt-2">
+        <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2">
           {Title}
         </p>
-        <p className="text-xs text-muted-foreground mt-1">{Year}</p>
+        <p className="text-xs text-muted-foreground mt-0.5 tabular-nums">{Year}</p>
       </div>
     </Link>
   );
@@ -79,15 +79,15 @@ function WatchedCard({ movie }) {
     <Link href={`/movieDetails/${imdbID}`} className="no-underline block">
       <Card
         size="sm"
-        className="flex flex-row items-stretch gap-3 p-3 bg-card hover:border-primary transition-colors rounded-lg"
+        className="flex flex-row items-stretch gap-4 p-3 bg-card"
       >
-        <div className="w-14 flex-shrink-0">
-          <div className="poster rounded-sm">
+        <div className="w-14 sm:w-16 flex-shrink-0">
+          <div className="poster">
             <PosterImage src={validPoster} alt={title} />
           </div>
         </div>
         <div className="flex flex-col justify-center flex-1 min-w-0 gap-1">
-          <p className="font-medium text-foreground text-sm truncate">
+          <p className="font-medium text-foreground text-[15px] truncate">
             {title}
           </p>
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
@@ -98,7 +98,7 @@ function WatchedCard({ movie }) {
               </span>
             )}
             {status === "watched" && userRating > 0 && (
-              <span className="text-primary font-medium">
+              <span className="text-foreground font-medium">
                 Your rating · {userRating}/10
               </span>
             )}

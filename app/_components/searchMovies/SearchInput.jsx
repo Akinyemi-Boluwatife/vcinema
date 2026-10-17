@@ -22,7 +22,7 @@ export default function SearchInput({ query, onQueryChange, size = "md" }) {
     <div className="relative w-full">
       <Search
         aria-hidden
-        className={`absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground ${
+        className={`absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground ${
           isLg ? "size-5" : "size-4"
         }`}
       />
@@ -31,7 +31,7 @@ export default function SearchInput({ query, onQueryChange, size = "md" }) {
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={isLg ? "Search films, directors, genres…" : "Find a film…"}
-        className={`pl-9 ${isLg ? "h-12 pr-10 text-base rounded-xl" : "h-10 pr-10"}`}
+        className={`pl-9 ${isLg ? "h-12 pr-10 text-base pl-11" : "h-9 pr-10"}`}
         aria-label="Search films"
       />
       {query ? (

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Roboto+Slab:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Roboto+Slab:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -512,5 +512,160 @@
     flex: 1;
     height: 1px;
     background: var(--border);
+  }
+}
+
+
+/* =====================================================================
+   APP SHELL: the signed-in app and public profile/list pages. Same palette
+   as the rest of the site; system type, concentric radii, quiet surfaces.
+   Brand red is reserved for primary actions and the selected state.
+   ===================================================================== */
+.app-shell {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+  --font-display: var(--font-heading);
+  --radius: 0.75rem;
+  --radius-control: 10px;
+  --radius-surface: 14px;
+  --hairline: 0 0 0 1px var(--border);
+
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.47;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.app-shell h1,
+.app-shell h2,
+.app-shell h3,
+.app-shell .font-display,
+.app-shell .text-display {
+  font-family: var(--font-heading);
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+}
+.app-shell .text-micro {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fg-2);
+}
+.app-shell .v-logo {
+  font-family: "Instrument Serif", "Times New Roman", serif;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.app-shell .v-logo .v {
+  font-size: 1.15em;
+}
+
+/* Surfaces */
+.app-shell [data-slot="card"] {
+  border-radius: var(--radius-surface);
+  box-shadow: var(--hairline);
+  background: var(--card);
+  transition: background-color 150ms;
+}
+.app-shell a:hover > [data-slot="card"] {
+  background: var(--bg-elev);
+}
+
+/* Controls */
+.app-shell [data-slot="button"] {
+  border-radius: var(--radius-control);
+  font-weight: 500;
+}
+.app-shell [data-slot="input"],
+.app-shell [data-slot="select-trigger"] {
+  border-radius: var(--radius-control);
+  background: var(--bg-elev);
+  border-color: transparent;
+}
+.app-shell [data-slot="badge"] {
+  border-radius: 9999px;
+  font-weight: 500;
+}
+.app-shell [data-slot="dialog-content"] {
+  border-radius: 20px;
+}
+.app-shell [data-slot="skeleton"] {
+  border-radius: var(--radius-control);
+}
+.app-shell :focus-visible {
+  outline: 2px solid var(--cinema-accent);
+  outline-offset: 2px;
+}
+
+/* Posters: content first, no decoration beyond a hairline edge */
+.app-shell .poster {
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--bg-elev);
+  transition: opacity 150ms;
+}
+.app-shell .poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.2);
+  pointer-events: none;
+}
+.app-shell a:active .poster {
+  opacity: 0.8;
+}
+.app-shell .poster-overlay {
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.app-shell .detail-backdrop::before {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--bg-page) 30%, transparent) 0%,
+    color-mix(in srgb, var(--bg-page) 80%, transparent) 70%,
+    var(--bg-page) 100%
+  );
+}
+
+@keyframes app-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.app-shell > main {
+  animation: app-fade 200ms ease-out both;
+}
+
+/* Room for the docked tab bar on phones */
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell > main {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .app-shell header,
+  .app-shell nav[aria-label="Primary"] {
+    backdrop-filter: none !important;
+    background: var(--background) !important;
   }
 }
