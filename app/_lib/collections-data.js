@@ -1,5 +1,7 @@
+import { unstable_cache } from "next/cache";
 import { createAnonClient } from "./supabase";
 import { auth } from "./auth";
+import { PUBLIC_TAG, PUBLIC_TTL } from "./cache";
 
 export function toCollection(row, extra = {}) {
   return {
@@ -46,24 +48,32 @@ export async function getMyCollection(id) {
   return toCollection(row, { items: (items ?? []).map(toItem) });
 }
 
+const fetchPublicCollection = unstable_cache(
+  async (slug) => {
+    const supabase = createAnonClient();
+
+    const { data: row } = await supabase
+      .from("collections")
+      .select("*")
+      .eq("public_slug", slug)
+      .eq("is_public", true)
+      .maybeSingle();
+    if (!row) return null;
+
+    const { data: items } = await supabase
+      .from("collection_items")
+      .select("*")
+      .eq("collection_id", row.id)
+      .order("position", { ascending: true });
+
+    return toCollection(row, { items: (items ?? []).map(toItem) });
+  },
+  ["public-collection"],
+  { tags: [PUBLIC_TAG], revalidate: PUBLIC_TTL },
+);
+
 export async function getPublicCollectionBySlug(slug) {
   if (!slug) return null;
   await auth();
-  const supabase = createAnonClient();
-
-  const { data: row } = await supabase
-    .from("collections")
-    .select("*")
-    .eq("public_slug", slug)
-    .eq("is_public", true)
-    .maybeSingle();
-  if (!row) return null;
-
-  const { data: items } = await supabase
-    .from("collection_items")
-    .select("*")
-    .eq("collection_id", row.id)
-    .order("position", { ascending: true });
-
-  return toCollection(row, { items: (items ?? []).map(toItem) });
+  return fetchPublicCollection(slug);
 }

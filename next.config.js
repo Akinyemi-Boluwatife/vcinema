@@ -18,7 +18,7 @@ const csp = [
 const nextConfig = {
   experimental: {
     staleTimes: {
-      dynamic: 30,
+      dynamic: 120,
     },
   },
   images: {
