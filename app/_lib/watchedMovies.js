@@ -1,5 +1,6 @@
 "use server";
 import { auth } from "./auth";
+import { getMovieDetails } from "./omdb";
 
 function splitOmdbList(value) {
   if (!value || typeof value !== "string") return [];
@@ -93,4 +94,37 @@ export async function updateWatchedDate(imdbID, isoDateString) {
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Movie is not marked watched");
   return data.watched_at;
+}
+
+export async function quickAddToWatchlist(imdbID) {
+  const { supabase, user } = await auth();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: existing } = await supabase
+    .from("watched_movies")
+    .select("status")
+    .eq("user_id", user.id)
+    .eq("imdb_id", imdbID)
+    .maybeSingle();
+  if (existing) return { added: false };
+
+  const m = await getMovieDetails(imdbID);
+  const runtime = Number.parseInt(m.Runtime, 10);
+  const imdbRating = Number.parseFloat(m.imdbRating);
+  await setMovieStatus(
+    {
+      title: m.Title,
+      poster: m.Poster,
+      imdbID,
+      year: m.Year,
+      imdbRating: Number.isFinite(imdbRating) ? imdbRating : null,
+      userRating: 0,
+      runtime: Number.isFinite(runtime) ? runtime : null,
+      genres: m.Genre,
+      director: m.Director,
+      actors: m.Actors,
+    },
+    "want_to_watch",
+  );
+  return { added: true };
 }

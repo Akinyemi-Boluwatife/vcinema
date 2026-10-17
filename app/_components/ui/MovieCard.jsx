@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import PosterImage from "./PosterImage";
+import QuickAddButton from "./QuickAddButton";
 
 const STATUS_LABEL = {
   watched: "Watched",
@@ -31,21 +32,21 @@ function SearchCard({ movie, status }) {
   const validPoster = Poster && Poster !== "N/A" ? Poster : null;
 
   return (
-    <Link
-      href={`/movieDetails/${imdbID}`}
-      className="no-underline group block"
-    >
-      <div className="poster">
-        <PosterImage src={validPoster} alt={Title} />
-        <StatusOverlay status={status} />
-      </div>
-      <div className="mt-2">
-        <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2">
-          {Title}
-        </p>
-        <p className="text-xs text-muted-foreground mt-0.5 tabular-nums">{Year}</p>
-      </div>
-    </Link>
+    <div className="relative group">
+      <Link href={`/movieDetails/${imdbID}`} className="no-underline block">
+        <div className="poster">
+          <PosterImage src={validPoster} alt={Title} />
+          <StatusOverlay status={status} />
+        </div>
+        <div className="mt-2">
+          <p className="text-[13px] font-medium text-foreground leading-snug line-clamp-2">
+            {Title}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5 tabular-nums">{Year}</p>
+        </div>
+      </Link>
+      {!status && <QuickAddButton imdbID={imdbID} title={Title} />}
+    </div>
   );
 }
 
