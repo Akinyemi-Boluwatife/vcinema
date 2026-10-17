@@ -1,10 +1,16 @@
 "use client";
 import { useReducer, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, FolderPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useToast } from "@/_components/ui/Toaster";
 import {
   listMyCollections,
@@ -23,7 +29,7 @@ const INITIAL_STATE = {
 function reducer(state, action) {
   switch (action.type) {
     case "OPEN":
-      return { ...state, open: true };
+      return { ...state, open: true, status: "" };
     case "CLOSE":
       return { ...state, open: false };
     case "SET_COLLECTIONS":
@@ -102,103 +108,100 @@ export default function AddToCollectionMenu({ movie, movieId }) {
   }
 
   return (
-    <Card className="mt-4 max-w-2xl">
-      <CardContent className="space-y-3">
-        <div className="text-micro">Add to a collection</div>
+    <>
+      <Button
+        variant="outline"
+        onClick={handleOpen}
+        className="h-10"
+      >
+        <FolderPlus className="size-4" /> Add to collection
+      </Button>
 
-        {!open ? (
-          <Button variant="outline" onClick={handleOpen} className="h-10">
-            <Plus className="size-4" /> Add to collection
-          </Button>
-        ) : (
-          <>
-            {collections === null ? (
-              <p className="text-muted-foreground text-xs text-center py-2">
-                Loading…
-              </p>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => dispatch({ type: v ? "OPEN" : "CLOSE" })}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to a collection</DialogTitle>
+            <DialogDescription>{movie.Title}</DialogDescription>
+          </DialogHeader>
+
+          {collections === null ? (
+            <p className="text-muted-foreground text-sm text-center py-4">
+              Loading…
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
+              {collections.length === 0 && !creating && (
+                <p className="text-muted-foreground text-sm text-center py-2">
+                  You don&apos;t have any collections yet.
+                </p>
+              )}
+              {collections.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => handleAdd(c.id, c.title)}
+                  disabled={isPending}
+                  className="flex min-h-11 items-center justify-between text-left bg-muted/40 hover:bg-muted rounded-lg px-3 py-2 border border-border cursor-pointer disabled:opacity-50 transition-colors"
+                >
+                  <span className="text-foreground text-sm truncate">
+                    {c.title}
+                  </span>
+                  <span className="text-muted-foreground text-xs ml-2 shrink-0">
+                    {c.itemCount} films
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {collections !== null &&
+            (creating ? (
+              <form
+                className="flex gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCreateAndAdd();
+                }}
+              >
+                <Input
+                  value={newTitle}
+                  onChange={(e) =>
+                    dispatch({ type: "SET_NEW_TITLE", payload: e.target.value })
+                  }
+                  placeholder="New collection title"
+                  maxLength={120}
+                  disabled={isPending}
+                  autoFocus
+                  className="h-10"
+                />
+                <Button
+                  type="submit"
+                  disabled={isPending || !newTitle.trim()}
+                  className="h-10"
+                >
+                  {isPending ? "Saving…" : "Create"}
+                </Button>
+              </form>
             ) : (
-              <div className="flex flex-col gap-2">
-                {collections.length === 0 && !creating && (
-                  <p className="text-muted-foreground text-xs text-center py-2">
-                    You don&apos;t have any collections yet.
-                  </p>
-                )}
-                {collections.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => handleAdd(c.id, c.title)}
-                    disabled={isPending}
-                    className="flex items-center justify-between text-left bg-muted/40 hover:bg-muted rounded-md px-3 py-2 border border-border cursor-pointer disabled:opacity-50 transition-colors"
-                  >
-                    <span className="text-foreground text-sm truncate">
-                      {c.title}
-                    </span>
-                    <span className="text-muted-foreground text-xs ml-2 shrink-0">
-                      {c.itemCount} films
-                    </span>
-                  </button>
-                ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => dispatch({ type: "START_CREATING" })}
+                disabled={isPending}
+                className="self-start"
+              >
+                <Plus className="size-3" /> New collection
+              </Button>
+            ))}
 
-                {creating ? (
-                  <div className="flex flex-col gap-2">
-                    <Input
-                      value={newTitle}
-                      onChange={(e) =>
-                        dispatch({ type: "SET_NEW_TITLE", payload: e.target.value })
-                      }
-                      placeholder="New collection title"
-                      maxLength={120}
-                      disabled={isPending}
-                      className="h-10"
-                    />
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={handleCreateAndAdd}
-                        disabled={isPending || !newTitle.trim()}
-                        className="flex-1 h-9"
-                      >
-                        {isPending ? "Saving…" : "Create & add"}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => dispatch({ type: "CANCEL_CREATING" })}
-                        disabled={isPending}
-                        className="h-9"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => dispatch({ type: "START_CREATING" })}
-                    disabled={isPending}
-                    className="self-start"
-                  >
-                    <Plus className="size-3" /> New collection
-                  </Button>
-                )}
-              </div>
-            )}
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => dispatch({ type: "CLOSE" })}
-              disabled={isPending}
-            >
-              Close
-            </Button>
-          </>
-        )}
-
-        {status && (
-          <p className="text-muted-foreground text-xs">{status}</p>
-        )}
-      </CardContent>
-    </Card>
+          {status && (
+            <p className="text-destructive text-xs">{status}</p>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
