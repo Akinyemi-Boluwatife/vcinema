@@ -3,6 +3,8 @@ import { getMovieDetails } from "./omdb";
 import { generateTasteBlurb } from "./deepseek";
 
 const BACKFILL_CONCURRENCY = 5;
+// Bump to force every stored blurb to regenerate on its next view.
+const TASTE_BLURB_VERSION = "v2";
 const BACKFILL_RETRY_MS = 60 * 60 * 1000;
 
 function splitOmdbList(value) {
@@ -243,6 +245,7 @@ export async function aggregateStats(rows, userId = null) {
   // top decade/genre, top-3 genres, top-3 directors, avg rating (±0.5 granularity).
   // The blurb is only regenerated when this string changes.
   const fingerprint = [
+    TASTE_BLURB_VERSION,
     top?.decade ?? "x",
     top?.genre ?? "x",
     topGenres.slice(0, 3).join(","),
