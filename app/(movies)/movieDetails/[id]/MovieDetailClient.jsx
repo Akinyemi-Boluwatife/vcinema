@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function MovieDetailClient({ movie }) {
-  const { back } = useRouter();
+  const { back, push } = useRouter();
 
   const {
     Title: title,
@@ -37,7 +37,10 @@ export default function MovieDetailClient({ movie }) {
             variant="outline"
             size="sm"
             className="h-8 backdrop-blur-md bg-background/60"
-            onClick={() => back()}
+            onClick={() => {
+              if (window.history.length > 1) back();
+              else push("/searchMovies");
+            }}
           >
             <ArrowLeft className="size-3.5" />
             Back
@@ -74,7 +77,7 @@ export default function MovieDetailClient({ movie }) {
           </h1>
           <div className="flex flex-wrap gap-1.5">
             {genres.map((g) => (
-              <Badge key={g} variant="outline" className="text-xs">
+              <Badge key={g} variant="secondary" className="text-xs">
                 {g}
               </Badge>
             ))}

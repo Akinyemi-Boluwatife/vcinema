@@ -72,7 +72,7 @@ export default function StatsDetails() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-12">
       <header className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
+        <h1 className="text-[28px] md:text-[34px] leading-tight font-bold text-foreground">
           Stats
         </h1>
         <p className="text-sm text-muted-foreground mt-1.5">

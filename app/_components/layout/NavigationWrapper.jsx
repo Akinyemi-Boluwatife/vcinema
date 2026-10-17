@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useNavigation } from "@/_contexts/NavigationContext";
+import { navItem } from "@/_styles/classes";
 
 const navLinks = [
   { href: "/searchMovies", label: "Search" },
@@ -27,16 +28,13 @@ export default function NavigationWrapper() {
           <Link
             key={href}
             href={href}
+            aria-current={active ? "page" : undefined}
             onClick={(e) => {
               // Let modifier/new-tab clicks navigate without hijacking active state.
               if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
               setTargetPath(href);
             }}
-            className={`relative px-3.5 py-2 rounded-md text-sm font-medium no-underline transition-colors ${
-              active
-                ? "text-foreground nav-underline-active"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
+            className={`px-3 py-1.5 ${navItem.base} ${active ? navItem.active : navItem.inactive}`}
           >
             {label}
           </Link>

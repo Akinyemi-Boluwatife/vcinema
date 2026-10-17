@@ -11,11 +11,11 @@ import {
 import ChartContainer from "./ChartContainer";
 
 const palette = [
-  "rgba(225, 29, 46, 0.85)",
-  "rgba(225, 29, 46, 0.6)",
-  "rgba(225, 29, 46, 0.4)",
-  "rgba(225, 29, 46, 0.25)",
-  "rgba(255, 255, 255, 0.12)",
+  "color-mix(in srgb, var(--cinema-accent) 85%, transparent)",
+  "color-mix(in srgb, var(--cinema-accent) 60%, transparent)",
+  "color-mix(in srgb, var(--cinema-accent) 40%, transparent)",
+  "color-mix(in srgb, var(--cinema-accent) 25%, transparent)",
+  "color-mix(in srgb, var(--foreground) 14%, transparent)",
 ];
 
 const tickStyle = { fill: "var(--fg-2)", fontSize: 12 };
@@ -38,7 +38,7 @@ export default function GenresOverTimeChart({ data, genres }) {
   return (
     <ChartContainer>
       <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-        <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+        <CartesianGrid stroke="var(--border)" vertical={false} />
         <XAxis
           dataKey="month"
           tickFormatter={formatMonth}

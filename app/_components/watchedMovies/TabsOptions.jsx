@@ -38,13 +38,13 @@ function TabsOptionsInner() {
   }
 
   return (
-    <Tabs value={optimisticTab} onValueChange={handleSelect} className="mb-6">
-      <TabsList className="w-full justify-start gap-0 bg-transparent border-b border-border rounded-none p-0 h-auto overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <Tabs value={optimisticTab} onValueChange={handleSelect} className="mb-8">
+      <TabsList className="w-full sm:w-fit justify-stretch gap-0.5 bg-muted rounded-[10px] p-0.5 h-9 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map(({ key, label }) => (
           <TabsTrigger
             key={key}
             value={key}
-            className="rounded-none border-t-0 border-x-0 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:!bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground dark:data-[state=active]:!bg-transparent dark:data-[state=active]:border-b-primary text-muted-foreground hover:text-foreground py-2.5 px-2.5 sm:px-4 text-xs sm:text-sm font-medium -mb-px whitespace-nowrap"
+            className="rounded-lg border-0 px-3 sm:px-4 text-[13px] font-medium text-muted-foreground hover:text-foreground whitespace-nowrap after:hidden transition-colors data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:shadow-sm dark:data-[state=active]:bg-accent dark:data-[state=active]:text-foreground dark:data-[state=active]:border-0"
           >
             {label}
           </TabsTrigger>
