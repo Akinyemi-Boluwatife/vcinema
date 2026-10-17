@@ -35,7 +35,7 @@ export default function CollectionCard({ collection }) {
             {isPublic && (
               <Badge
                 variant="outline"
-                className="text-[10px] uppercase tracking-wider shrink-0"
+                className="text-[11px] shrink-0"
               >
                 <Globe className="size-2.5" /> Public
               </Badge>

@@ -22,7 +22,7 @@ export default function MonthlyWatchChart({ data }) {
   return (
     <ChartContainer>
       <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-        <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+        <CartesianGrid stroke="var(--border)" vertical={false} />
         <XAxis
           dataKey="month"
           tickFormatter={formatMonth}
@@ -37,7 +37,7 @@ export default function MonthlyWatchChart({ data }) {
           tickLine={false}
         />
         <Tooltip
-          cursor={{ fill: "rgba(255,255,255,0.04)" }}
+          cursor={{ fill: "var(--bg-elev)" }}
           contentStyle={{
             background: "var(--bg-elev)",
             border: "1px solid var(--border)",

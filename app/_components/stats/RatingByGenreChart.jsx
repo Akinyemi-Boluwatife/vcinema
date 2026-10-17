@@ -27,7 +27,7 @@ export default function RatingByGenreChart({ data }) {
         layout="vertical"
         margin={{ top: 4, right: 24, left: 8, bottom: 4 }}
       >
-        <CartesianGrid stroke="rgba(255,255,255,0.08)" horizontal={false} />
+        <CartesianGrid stroke="var(--border)" horizontal={false} />
         <XAxis
           type="number"
           domain={[0, 10]}
@@ -44,7 +44,7 @@ export default function RatingByGenreChart({ data }) {
           width={80}
         />
         <Tooltip
-          cursor={{ fill: "rgba(255,255,255,0.04)" }}
+          cursor={{ fill: "var(--bg-elev)" }}
           contentStyle={{
             background: "var(--bg-elev)",
             border: "1px solid var(--border)",

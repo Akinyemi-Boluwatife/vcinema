@@ -1,6 +1,5 @@
 "use client";
 import { useMemo, useState } from "react";
-import { colors } from "@/_styles/tokens";
 
 const CELL = 12;
 const GAP = 3;
@@ -47,11 +46,11 @@ function levelFor(count) {
 }
 
 const LEVEL_FILL = {
-  0: "rgba(255,255,255,0.04)",
-  1: "rgba(225,29,46,0.20)",
-  2: "rgba(225,29,46,0.40)",
-  3: "rgba(225,29,46,0.65)",
-  4: "rgba(225,29,46,0.95)",
+  0: "var(--heatmap-empty)",
+  1: "var(--heatmap-l1)",
+  2: "var(--heatmap-l2)",
+  3: "var(--heatmap-l3)",
+  4: "var(--heatmap-l4)",
 };
 
 const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -130,8 +129,8 @@ export default function HeatmapCalendar({ year, byDay }) {
             key={`m-${m.x}`}
             x={LEFT_LABEL_WIDTH + m.x}
             y={11}
-            fill="var(--fg-3)"
-            fontSize="10"
+            fill="var(--fg-2)"
+            fontSize="11"
             fontFamily="inherit"
           >
             {m.label}
@@ -147,8 +146,8 @@ export default function HeatmapCalendar({ year, byDay }) {
             key={r.label}
             x={0}
             y={TOP_LABEL_HEIGHT + r.row * STEP + 9}
-            fill="var(--fg-3)"
-            fontSize="9"
+            fill="var(--fg-2)"
+            fontSize="11"
             fontFamily="inherit"
           >
             {r.label}
@@ -166,9 +165,18 @@ export default function HeatmapCalendar({ year, byDay }) {
               rx={2}
               ry={2}
               fill={LEVEL_FILL[c.level]}
-              stroke={c.level === 0 ? "rgba(255,255,255,0.05)" : "none"}
+              stroke={c.level === 0 ? "var(--border)" : "none"}
               onMouseEnter={() => setHover(c)}
               onMouseLeave={() => setHover(null)}
+              onFocus={() => setHover(c)}
+              onBlur={() => setHover(null)}
+              tabIndex={c.count > 0 ? 0 : -1}
+              role={c.count > 0 ? "img" : undefined}
+              aria-label={
+                c.count > 0
+                  ? `${formatLong(c.date)}: ${c.count} ${c.count === 1 ? "movie" : "movies"}`
+                  : undefined
+              }
               onClick={() => setHover((prev) => (prev?.key === c.key ? null : c))}
               style={{ cursor: c.count > 0 ? "pointer" : "default" }}
             >
@@ -220,7 +228,7 @@ export default function HeatmapCalendar({ year, byDay }) {
               width: 12,
               height: 12,
               background: LEVEL_FILL[lvl],
-              border: lvl === 0 ? "1px solid rgba(255,255,255,0.05)" : "none",
+              border: lvl === 0 ? "1px solid var(--border)" : "none",
             }}
           />
         ))}

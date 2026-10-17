@@ -31,13 +31,12 @@ export default function StarRating({
             color={color}
             size={size}
             key={i}
-            index={i + 1}
-            maxRating={maxRating}
             selected={rating === i + 1}
             onRate={() => handleRating(i + 1)}
             full={tempRating ? tempRating >= i + 1 : rating >= i + 1}
             onHoverIn={() => setTempRating(i + 1)}
             onHoverOut={() => setTempRating(0)}
+            label={`Rate ${i + 1} of ${maxRating}`}
           />
         ))}
       </div>
@@ -53,7 +52,7 @@ export default function StarRating({
   );
 }
 
-function Star({ index, maxRating, selected, onRate, full, onHoverIn, onHoverOut, color, size }) {
+function Star({ selected, onRate, full, onHoverIn, onHoverOut, color, size, label }) {
   return (
     <button
       type="button"
@@ -67,7 +66,7 @@ function Star({ index, maxRating, selected, onRate, full, onHoverIn, onHoverOut,
         color,
         cursor: "pointer",
       }}
-      aria-label={`Rate ${index} out of ${maxRating}`}
+      aria-label={label}
       aria-pressed={selected}
     >
       <svg
