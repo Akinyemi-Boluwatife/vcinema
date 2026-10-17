@@ -68,14 +68,14 @@ export default function ProfileSettingsForm({ initial }) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Card>
           <CardContent className="space-y-4">
-            <p className="text-base font-medium text-foreground">Appearance</p>
+            <p className="text-base font-semibold text-foreground">Appearance</p>
             <ThemeToggle />
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="space-y-4">
-            <p className="text-base font-medium text-foreground">Details</p>
+            <p className="text-base font-semibold text-foreground">Details</p>
             <div className="space-y-1.5">
               <Label
                 htmlFor="username"

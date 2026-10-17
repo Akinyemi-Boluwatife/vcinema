@@ -33,6 +33,7 @@ export default function StarRating({
             full={tempRating ? tempRating >= i + 1 : rating >= i + 1}
             onHoverIn={() => setTempRating(i + 1)}
             onHoverOut={() => setTempRating(0)}
+            label={`Rate ${i + 1} of ${maxRating}`}
           />
         ))}
       </div>
@@ -48,7 +49,7 @@ export default function StarRating({
   );
 }
 
-function Star({ onRate, full, onHoverIn, onHoverOut, color, size }) {
+function Star({ onRate, full, onHoverIn, onHoverOut, color, size, label }) {
   return (
     <button
       type="button"
@@ -62,7 +63,7 @@ function Star({ onRate, full, onHoverIn, onHoverOut, color, size }) {
         color,
         cursor: "pointer",
       }}
-      aria-label={`Rate ${full ? "filled" : "empty"} star`}
+      aria-label={label}
     >
       <svg
         viewBox="0 0 24 24"
