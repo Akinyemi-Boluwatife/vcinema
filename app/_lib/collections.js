@@ -1,5 +1,6 @@
 "use server";
 import { auth } from "./auth";
+import { refreshData } from "./cache";
 import { generateSlug } from "./slug";
 import { toCollection } from "./collections-data";
 
@@ -75,6 +76,7 @@ export async function createCollection({ title, description }) {
     .select("id")
     .single();
   if (error) throw new Error(error.message);
+  refreshData();
   return data.id;
 }
 
@@ -86,6 +88,7 @@ export async function deleteCollection(id) {
     .delete()
     .eq("id", id)
     .eq("user_id", user.id);
+  refreshData();
 }
 
 export async function togglePublic(id) {
@@ -110,10 +113,13 @@ export async function togglePublic(id) {
       })
       .eq("id", id)
       .eq("user_id", user.id);
+    refreshData();
     return { isPublic: false, publicSlug: null };
   }
 
-  return trySlug(supabase, id, user.id);
+  const result = await trySlug(supabase, id, user.id);
+  refreshData();
+  return result;
 }
 
 export async function addItem(collectionId, item) {
@@ -128,6 +134,7 @@ export async function addItem(collectionId, item) {
     p_year: item.year ?? null,
   });
   if (error) throw new Error(error.message);
+  refreshData();
   return { added: data === true };
 }
 
@@ -153,6 +160,7 @@ export async function removeItem(collectionId, imdbID) {
     .update({ updated_at: new Date().toISOString() })
     .eq("id", collectionId)
     .eq("user_id", user.id);
+  refreshData();
 }
 
 export async function reorderItems(collectionId, orderedImdbIDs) {
@@ -164,4 +172,5 @@ export async function reorderItems(collectionId, orderedImdbIDs) {
     p_ordered_imdb_ids: orderedImdbIDs,
   });
   if (error) throw new Error(error.message);
+  refreshData();
 }

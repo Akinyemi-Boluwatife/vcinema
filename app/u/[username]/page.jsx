@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPublicProfileByUsername } from "@/_lib/profiles";
-import { createServerSupabase } from "@/_lib/supabase";
+import { auth } from "@/_lib/auth";
 import Logo from "@/_components/layout/Logo";
 import ViewerCta from "@/_components/profile/ViewerCta";
 import PublicStatsSection from "@/_components/profile/PublicStatsSection";
@@ -49,10 +49,7 @@ export default async function PublicProfilePage({ params, searchParams }) {
   const profile = await getPublicProfileByUsername(username);
   if (!profile) notFound();
 
-  const supabase = await createServerSupabase();
-  const {
-    data: { user: viewer },
-  } = await supabase.auth.getUser();
+  const { user: viewer } = await auth();
   const isOwnProfile = viewer?.id === profile.id;
   const nextHref = `/u/${profile.username}`;
   const signinHref = `/signin?next=${encodeURIComponent(nextHref)}`;

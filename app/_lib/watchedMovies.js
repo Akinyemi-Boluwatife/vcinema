@@ -1,5 +1,6 @@
 "use server";
 import { auth } from "./auth";
+import { refreshData } from "./cache";
 
 function splitOmdbList(value) {
   if (!value || typeof value !== "string") return [];
@@ -56,6 +57,7 @@ export async function setMovieStatus(movie, status) {
     },
     { onConflict: "user_id,imdb_id" }
   );
+  refreshData();
 }
 
 export async function removeFromList(imdbID) {
@@ -66,6 +68,7 @@ export async function removeFromList(imdbID) {
     .delete()
     .eq("user_id", user.id)
     .eq("imdb_id", imdbID);
+  refreshData();
 }
 
 export async function updateWatchedDate(imdbID, isoDateString) {
@@ -92,5 +95,6 @@ export async function updateWatchedDate(imdbID, isoDateString) {
 
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Movie is not marked watched");
+  refreshData();
   return data.watched_at;
 }

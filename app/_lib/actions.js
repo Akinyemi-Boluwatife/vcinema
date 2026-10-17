@@ -1,9 +1,9 @@
 "use server";
 import { redirect } from "next/navigation";
 import { headers, cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "./supabase";
 import { auth } from "./auth";
+import { refreshData } from "./cache";
 import { updateMyProfile, setMyAvatar, removeMyAvatar } from "./profiles";
 import { PW_RECOVERY_COOKIE } from "./auth-cookies";
 
@@ -107,9 +107,7 @@ export async function updateProfileSettings(values) {
   if (!user) return { error: "Not authenticated." };
   const result = await updateMyProfile(values);
   if (result?.error) return result;
-  revalidatePath("/profile");
-  if (values?.username)
-    revalidatePath(`/u/${String(values.username).trim().toLowerCase()}`);
+  refreshData();
   return { ok: true };
 }
 
@@ -118,8 +116,7 @@ export async function setProfileImage(values) {
   if (!user) return { error: "Not authenticated." };
   const result = await setMyAvatar(values);
   if (result?.error) return result;
-  revalidatePath("/profile");
-  revalidatePath("/u/[username]", "page");
+  refreshData();
   return { ok: true };
 }
 
@@ -128,8 +125,7 @@ export async function removeProfileImage() {
   if (!user) return { error: "Not authenticated." };
   const result = await removeMyAvatar();
   if (result?.error) return result;
-  revalidatePath("/profile");
-  revalidatePath("/u/[username]", "page");
+  refreshData();
   return { ok: true };
 }
 

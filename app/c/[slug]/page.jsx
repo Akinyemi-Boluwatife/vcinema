@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Globe } from "lucide-react";
 import { getPublicCollectionBySlug } from "@/_lib/collections-data";
-import { createServerSupabase } from "@/_lib/supabase";
+import { auth } from "@/_lib/auth";
 import Logo from "@/_components/layout/Logo";
 import ViewerCta from "@/_components/profile/ViewerCta";
 import { Badge } from "@/components/ui/badge";
@@ -37,10 +37,7 @@ export default async function PublicCollectionPage({ params }) {
   const collection = await getPublicCollectionBySlug(slug);
   if (!collection) notFound();
 
-  const supabase = await createServerSupabase();
-  const {
-    data: { user: viewer },
-  } = await supabase.auth.getUser();
+  const { user: viewer } = await auth();
 
   return (
     <div className="min-h-screen bg-background">
