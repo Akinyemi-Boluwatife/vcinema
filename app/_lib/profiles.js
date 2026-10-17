@@ -1,6 +1,8 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createAnonClient } from "./supabase";
 import { auth } from "./auth";
+import { PUBLIC_TAG, PUBLIC_TTL } from "./cache";
 
 const RESERVED = Object.freeze(new Set([
   "admin",
@@ -153,20 +155,85 @@ export async function updateMyProfile({
   return { ok: true };
 }
 
+const fetchPublicProfile = unstable_cache(
+  async (value) => {
+    const supabase = createAnonClient();
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .ilike("username", value)
+      .eq("is_public", true)
+      .maybeSingle();
+    return data ? toProfile(data) : null;
+  },
+  ["public-profile"],
+  { tags: [PUBLIC_TAG], revalidate: PUBLIC_TTL },
+);
+
+const fetchPublicWatched = unstable_cache(
+  async (userId) => {
+    const supabase = createAnonClient();
+    const { data } = await supabase
+      .from("watched_movies")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("status", "watched")
+      .order("watched_at", { ascending: false, nullsFirst: false });
+    return (data ?? []).map(toWatched);
+  },
+  ["public-watched"],
+  { tags: [PUBLIC_TAG], revalidate: PUBLIC_TTL },
+);
+
+const fetchPublicCollections = unstable_cache(
+  async (userId) => {
+    const supabase = createAnonClient();
+    const { data: collections } = await supabase
+      .from("collections")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("is_public", true)
+      .order("updated_at", { ascending: false });
+
+    const rows = collections ?? [];
+    if (!rows.length) return [];
+
+    const ids = rows.map((r) => r.id);
+    const { data: items } = await supabase
+      .from("collection_items")
+      .select("collection_id, poster, position")
+      .in("collection_id", ids)
+      .order("position", { ascending: true });
+
+    const meta = new Map();
+    for (const id of ids) meta.set(id, { count: 0, coverPoster: null });
+    for (const it of items ?? []) {
+      const m = meta.get(it.collection_id);
+      if (!m) continue;
+      m.count += 1;
+      if (m.coverPoster == null && it.poster && it.poster !== "N/A") {
+        m.coverPoster = it.poster;
+      }
+    }
+
+    return rows.map((r) =>
+      toCollection(r, {
+        itemCount: meta.get(r.id).count,
+        coverPoster: meta.get(r.id).coverPoster,
+      }),
+    );
+  },
+  ["public-collections"],
+  { tags: [PUBLIC_TAG], revalidate: PUBLIC_TTL },
+);
+
 export const getPublicProfileByUsername = cache(async (username) => {
   if (!username) return null;
   await auth();
   const value = String(username).trim().toLowerCase();
   if (!USERNAME_RE.test(value)) return null;
 
-  const supabase = createAnonClient();
-  const { data } = await supabase
-    .from("profiles")
-    .select("*")
-    .ilike("username", value)
-    .eq("is_public", true)
-    .maybeSingle();
-  return data ? toProfile(data) : null;
+  return fetchPublicProfile(value);
 });
 
 export const getPublicWatched = cache(async (username) => {
@@ -174,57 +241,14 @@ export const getPublicWatched = cache(async (username) => {
   const profile = await getPublicProfileByUsername(username);
   if (!profile || !profile.showWatched) return [];
 
-  const supabase = createAnonClient();
-  const { data } = await supabase
-    .from("watched_movies")
-    .select("*")
-    .eq("user_id", profile.id)
-    .eq("status", "watched")
-    .order("watched_at", { ascending: false, nullsFirst: false });
-  return (data ?? []).map(toWatched);
+  return fetchPublicWatched(profile.id);
 });
 
 export const getPublicCollections = cache(async (username) => {
   await auth();
   const profile = await getPublicProfileByUsername(username);
   if (!profile) return [];
-
-  const supabase = createAnonClient();
-
-  const { data: collections } = await supabase
-    .from("collections")
-    .select("*")
-    .eq("user_id", profile.id)
-    .eq("is_public", true)
-    .order("updated_at", { ascending: false });
-
-  const rows = collections ?? [];
-  if (!rows.length) return [];
-
-  const ids = rows.map((r) => r.id);
-  const { data: items } = await supabase
-    .from("collection_items")
-    .select("collection_id, poster, position")
-    .in("collection_id", ids)
-    .order("position", { ascending: true });
-
-  const meta = new Map();
-  for (const id of ids) meta.set(id, { count: 0, coverPoster: null });
-  for (const it of items ?? []) {
-    const m = meta.get(it.collection_id);
-    if (!m) continue;
-    m.count += 1;
-    if (m.coverPoster == null && it.poster && it.poster !== "N/A") {
-      m.coverPoster = it.poster;
-    }
-  }
-
-  return rows.map((r) =>
-    toCollection(r, {
-      itemCount: meta.get(r.id).count,
-      coverPoster: meta.get(r.id).coverPoster,
-    })
-  );
+  return fetchPublicCollections(profile.id);
 });
 
 export async function setMyAvatar({ publicUrl, storagePath }) {
