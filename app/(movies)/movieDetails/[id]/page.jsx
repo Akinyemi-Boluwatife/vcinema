@@ -23,8 +23,9 @@ export default async function MovieDetailsPage({ params }) {
         existingEntry={existingEntry}
       />
 
-      <AddToList movie={movie} movieId={id} existingEntry={existingEntry} />
-      <AddToCollectionMenu movie={movie} movieId={id} />
+      <AddToList movie={movie} movieId={id} existingEntry={existingEntry}>
+        <AddToCollectionMenu movie={movie} movieId={id} />
+      </AddToList>
     </div>
   );
 }
