@@ -1,6 +1,6 @@
 const API_KEY = process.env.DEEPSEEK_API_KEY;
 
-const SYSTEM_PROMPT = `You are a sharp, movie-obsessed friend. Given someone's watch history, write a single short descriptor, max 12 words, that captures who they are as a viewer. Format: a tight noun phrase, no subject pronoun, no "your taste", no full sentence, no em dashes. Think logline, not analysis. Be specific to their actual movies. Example shape: "Prestige crime obsessive with a soft spot for 80s Spielberg." Just the phrase.`;
+const SYSTEM_PROMPT = `You write a short, funny Gen Z style label for someone's movie taste, based on their watch history. Max 10 words, one line, plain everyday words, no film jargon or fancy terms. Use light brainrot slang (like "cooked", "no cap", "locked in", "lowkey", "fr", "main character", "NPC") but keep it easy to understand, 1 or 2 slang bits at most. Be specific to their actual movies or genres. No em dashes, no hashtags, no emojis, no quotes. Example shapes: "Lowkey a sci-fi nerd who is locked in on Nolan, no cap." or "Horror main character, scared but keeps pressing play." Just the line.`;
 
 export async function generateTasteBlurb({ rows, topGenres, topDirectors, avgRating, top }) {
   if (!API_KEY) return null;
@@ -35,7 +35,7 @@ export async function generateTasteBlurb({ rows, topGenres, topDirectors, avgRat
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userMessage },
         ],
-        max_tokens: 40,
+        max_tokens: 50,
         temperature: 0.8,
       }),
     });
