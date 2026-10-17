@@ -7,6 +7,7 @@ import StarRating from "./StarRating";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import EditWatchedDate from "@/_components/history/EditWatchedDate";
+import { useToast } from "@/_components/ui/Toaster";
 import { setMovieStatus, removeFromList } from "@/_lib/watchedMovies";
 
 const STATUS_OPTIONS = [
@@ -22,7 +23,8 @@ const STATUS_LABEL = {
 };
 
 export default function AddToList({ movie, movieId, existingEntry }) {
-  const { push } = useRouter();
+  const { push, refresh } = useRouter();
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(!existingEntry);
   const [isPendingSave, startSaving] = useTransition();
   const [isPendingRemove, startRemoving] = useTransition();
@@ -65,9 +67,21 @@ export default function AddToList({ movie, movieId, existingEntry }) {
           },
           status,
         );
-        push(`/watchedMovies?tab=${status}`);
+        toast(
+          existingEntry
+            ? "List entry updated"
+            : `Added to ${STATUS_LABEL[status]} list`,
+        );
+        if (existingEntry) {
+          setIsEditing(false);
+          refresh();
+        } else {
+          push(`/watchedMovies?tab=${status}`);
+        }
       } catch (e) {
-        setError(e.message || "Could not save changes. Please try again.");
+        const msg = e.message || "Could not save changes. Please try again.";
+        setError(msg);
+        toast(msg, { type: "error" });
       }
     });
   }
@@ -77,6 +91,7 @@ export default function AddToList({ movie, movieId, existingEntry }) {
     startRemoving(async () => {
       try {
         await removeFromList(movieId);
+        toast("Removed from your lists");
         push("/watchedMovies");
       } catch (e) {
         setError(e.message || "Could not remove this film. Please try again.");

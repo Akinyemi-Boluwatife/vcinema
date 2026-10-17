@@ -16,19 +16,24 @@ export default function StarRating({
   const [rating, setRating] = useState(defaultRating);
   const [tempRating, setTempRating] = useState(0);
 
-  function handleRating(rating) {
-    setRating(rating);
-    onSetRating?.(rating);
+  function handleRating(next) {
+    // Tapping the current rating again clears it.
+    const value = next === rating ? 0 : next;
+    setRating(value);
+    onSetRating?.(value);
   }
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div className="flex gap-0.5">
+      <div className="flex gap-0.5" role="group" aria-label="Your rating">
         {Array.from({ length: maxRating }, (_, i) => (
           <Star
             color={color}
             size={size}
             key={i}
+            index={i + 1}
+            maxRating={maxRating}
+            selected={rating === i + 1}
             onRate={() => handleRating(i + 1)}
             full={tempRating ? tempRating >= i + 1 : rating >= i + 1}
             onHoverIn={() => setTempRating(i + 1)}
@@ -48,7 +53,7 @@ export default function StarRating({
   );
 }
 
-function Star({ onRate, full, onHoverIn, onHoverOut, color, size }) {
+function Star({ index, maxRating, selected, onRate, full, onHoverIn, onHoverOut, color, size }) {
   return (
     <button
       type="button"
@@ -62,7 +67,8 @@ function Star({ onRate, full, onHoverIn, onHoverOut, color, size }) {
         color,
         cursor: "pointer",
       }}
-      aria-label={`Rate ${full ? "filled" : "empty"} star`}
+      aria-label={`Rate ${index} out of ${maxRating}`}
+      aria-pressed={selected}
     >
       <svg
         viewBox="0 0 24 24"

@@ -5,7 +5,7 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useKey } from "@/_hooks/useKey";
 
-export default function SearchInput({ query, onQueryChange, size = "md" }) {
+export default function SearchInput({ query, onQueryChange, onSubmit, size = "md" }) {
   const inputRef = useRef(null);
 
   const focusInput = useCallback(() => {
@@ -32,6 +32,12 @@ export default function SearchInput({ query, onQueryChange, size = "md" }) {
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={isLg ? "Search films, directors, genres…" : "Find a film…"}
         className={`pl-9 ${isLg ? "h-12 pr-10 text-base pl-11" : "h-9 pr-10"}`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") onSubmit?.();
+        }}
+        type="search"
+        enterKeyHint="search"
+        autoComplete="off"
         aria-label="Search films"
       />
       {query ? (

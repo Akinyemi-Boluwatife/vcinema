@@ -27,10 +27,19 @@ export function useMovieSearch(initialQuery = "") {
         ) {
           startNavigation(() => router.push("/searchMovies"));
         }
-      }, 500);
+      }, 350);
     },
     [startNavigation, router]
   );
 
-  return { query, handleQueryChange };
+  const handleSubmit = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (query.length >= 3) {
+      startNavigation(() =>
+        router.push(`/searchMovies?q=${encodeURIComponent(query)}`)
+      );
+    }
+  }, [query, startNavigation, router]);
+
+  return { query, handleQueryChange, handleSubmit };
 }
