@@ -43,7 +43,7 @@ export default async function PublicCollectionPage({ params }) {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="app-shell">
       <header className="sticky top-0 z-10 backdrop-blur-xl bg-background/70 border-b border-border">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3">
           <Logo size={22} />

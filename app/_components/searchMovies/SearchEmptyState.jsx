@@ -4,7 +4,7 @@ export default function SearchEmptyState({ icon, title, subtitle }) {
             <div className="text-muted-foreground mb-4" aria-hidden>
                 {icon}
             </div>
-            <p className="text-base font-medium text-foreground mb-1">{title}</p>
+            <p className="text-base font-semibold text-foreground mb-1">{title}</p>
             <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
     );
