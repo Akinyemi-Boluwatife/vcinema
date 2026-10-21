@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import SearchedMovies from "@/_components/searchMovies/SearchedMovies";
 import SearchMoviesSkeleton from "@/_components/searchMovies/SearchMoviesSkeleton";
+import DiscoverRows from "@/_components/searchMovies/DiscoverRows";
+import DiscoverRowsSkeleton from "@/_components/searchMovies/DiscoverRowsSkeleton";
 
 export const metadata = {
   title: "Search movies",
@@ -23,7 +25,17 @@ export default async function SearchMoviesPage({ searchParams }) {
       </header>
 
       <Suspense fallback={<SearchMoviesSkeleton />}>
-        <SearchedMovies key={query} query={query} />
+        <SearchedMovies
+          key={query}
+          query={query}
+          emptySlot={
+            query ? null : (
+              <Suspense fallback={<DiscoverRowsSkeleton />}>
+                <DiscoverRows />
+              </Suspense>
+            )
+          }
+        />
       </Suspense>
     </div>
   );

@@ -28,6 +28,11 @@ export default defineConfig({
     env: {
       ...responseStore.applicationWorker.env,
       ASSETS: bindings.assets(),
+      OMDB_API_KEY: bindings.secret(),
+      TMDB_READ_TOKEN: bindings.secret(),
+      SUPABASE_SERVICE_ROLE_KEY: bindings.secret(),
+      DEEPSEEK_API_KEY: bindings.secret(),
+      CRON_SECRET: bindings.secret(),
     },
   }),
 });
