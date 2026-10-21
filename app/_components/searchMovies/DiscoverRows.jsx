@@ -22,7 +22,12 @@ export default async function DiscoverRows() {
 
   return (
     <>
-      <MovieRow title="Trending this week" movies={trending.items} statusMap={statusMap} />
+      <MovieRow
+        title="Trending this week"
+        movies={trending.items}
+        statusMap={statusMap}
+        prioritizeFirst
+      />
       <MovieRow title="Popular" movies={popular.items} statusMap={statusMap} />
     </>
   );

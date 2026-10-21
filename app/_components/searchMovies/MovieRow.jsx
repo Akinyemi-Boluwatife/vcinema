@@ -3,7 +3,8 @@ import MovieCard from "../ui/MovieCard";
 
 const EMPTY_STATUS_MAP = {};
 
-export default function MovieRow({ title, movies, statusMap = EMPTY_STATUS_MAP }) {
+/** `prioritizeFirst` loads the first poster eagerly; set it on the topmost row only. */
+export default function MovieRow({ title, movies, statusMap = EMPTY_STATUS_MAP, prioritizeFirst = false }) {
   const headingId = useId();
 
   if (!movies?.length) return null;
@@ -18,9 +19,14 @@ export default function MovieRow({ title, movies, statusMap = EMPTY_STATUS_MAP }
         aria-label={title}
         className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-4 md:gap-x-4 md:gap-y-6 md:overflow-visible lg:grid-cols-5 xl:grid-cols-6"
       >
-        {movies.map((movie) => (
+        {movies.map((movie, index) => (
           <li key={movie.imdbID} className="w-32 shrink-0 snap-start sm:w-36 md:w-auto">
-            <MovieCard movie={movie} variant="search" status={statusMap[movie.imdbID]} />
+            <MovieCard
+              movie={movie}
+              variant="search"
+              status={statusMap[movie.imdbID]}
+              priority={prioritizeFirst && index === 0}
+            />
           </li>
         ))}
       </ul>

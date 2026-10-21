@@ -27,7 +27,7 @@ function StatusOverlay({ status }) {
   );
 }
 
-function SearchCard({ movie, status }) {
+function SearchCard({ movie, status, priority }) {
   const { imdbID, Title, Year, Poster } = movie;
   const validPoster = Poster && Poster !== "N/A" ? Poster : null;
 
@@ -35,7 +35,7 @@ function SearchCard({ movie, status }) {
     <div className="relative group">
       <Link href={`/movieDetails/${imdbID}`} className="no-underline block">
         <div className="poster">
-          <PosterImage src={validPoster} alt={Title} />
+          <PosterImage src={validPoster} alt={Title} priority={priority} />
           <StatusOverlay status={status} />
         </div>
         <div className="mt-2">
@@ -112,7 +112,8 @@ function WatchedCard({ movie }) {
   );
 }
 
-export default function MovieCard({ movie, variant = "search", status }) {
+/** `priority` marks the one above-the-fold poster to load eagerly (search variant only). */
+export default function MovieCard({ movie, variant = "search", status, priority = false }) {
   if (variant === "watched") return <WatchedCard movie={movie} />;
-  return <SearchCard movie={movie} status={status} />;
+  return <SearchCard movie={movie} status={status} priority={priority} />;
 }
