@@ -11,7 +11,14 @@ import SearchMoviesSkeleton from "./SearchMoviesSkeleton";
 
 const EMPTY_STATUS_MAP = {};
 
-export default function SearchMoviesList({ query, movies, statusMap = EMPTY_STATUS_MAP, error = null }) {
+/** `emptySlot` renders in place of the "Start searching" state when there is no query. */
+export default function SearchMoviesList({
+  query,
+  movies,
+  statusMap = EMPTY_STATUS_MAP,
+  error = null,
+  emptySlot = null,
+}) {
   const { isPending } = useNavigation();
 
   return (
@@ -29,13 +36,14 @@ export default function SearchMoviesList({ query, movies, statusMap = EMPTY_STAT
         <>
           {query.length >= 3 && <NumResult movies={movies} />}
 
-          {query.length === 0 && (
-            <SearchEmptyState
-              icon={<Search className="size-8" />}
-              title="Start searching"
-              subtitle="Type at least 3 characters to look up a film."
-            />
-          )}
+          {query.length === 0 &&
+            (emptySlot ?? (
+              <SearchEmptyState
+                icon={<Search className="size-8" />}
+                title="Start searching"
+                subtitle="Type at least 3 characters to look up a film."
+              />
+            ))}
 
           {query.length > 0 && query.length < 3 && (
             <SearchEmptyState

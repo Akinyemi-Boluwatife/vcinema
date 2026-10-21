@@ -2,7 +2,7 @@ import { searchMovies } from "@/_lib/omdb";
 import { getMovieStatuses } from "@/_lib/watchedMovies-data";
 import SearchMoviesList from "./SearchMoviesList";
 
-export default async function SearchedMovies({ query }) {
+export default async function SearchedMovies({ query, emptySlot }) {
   let movies = [];
   let statusMap = {};
   let error = null;
@@ -22,6 +22,7 @@ export default async function SearchedMovies({ query }) {
       movies={movies}
       statusMap={statusMap}
       error={error}
+      emptySlot={emptySlot}
     />
   );
 }
