@@ -11,7 +11,7 @@ function Placeholder() {
   );
 }
 
-export default function PosterImage({ src, alt }) {
+export default function PosterImage({ src, alt, priority = false }) {
   const [failed, setFailed] = useState(false);
 
   if (!src || failed) return <Placeholder />;
@@ -22,6 +22,7 @@ export default function PosterImage({ src, alt }) {
       alt={alt}
       width={300}
       height={450}
+      priority={priority}
       onError={() => setFailed(true)}
     />
   );
