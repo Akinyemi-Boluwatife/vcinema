@@ -3,7 +3,6 @@ import { getPopularMovies, getTrendingMovies } from "@/_lib/tmdb";
 import { getMovieStatuses } from "@/_lib/watchedMovies-data";
 import MovieRow from "./MovieRow";
 import SearchEmptyState from "./SearchEmptyState";
-import TmdbAttribution from "./TmdbAttribution";
 
 export default async function DiscoverRows() {
   const [trending, popular] = await Promise.all([getTrendingMovies(), getPopularMovies()]);
@@ -25,7 +24,6 @@ export default async function DiscoverRows() {
     <>
       <MovieRow title="Trending this week" movies={trending.items} statusMap={statusMap} />
       <MovieRow title="Popular" movies={popular.items} statusMap={statusMap} />
-      <TmdbAttribution />
     </>
   );
 }

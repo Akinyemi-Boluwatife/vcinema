@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { getMyProfile } from "@/_lib/profiles";
 import ProfileSettingsForm from "@/_components/profile/ProfileSettingsForm";
+import AboutSection from "@/_components/profile/AboutSection";
 import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "Profile settings" };
@@ -33,6 +34,7 @@ export default async function ProfilePage() {
       </header>
 
       <ProfileSettingsForm initial={profile} />
+      <AboutSection />
     </div>
   );
 }
